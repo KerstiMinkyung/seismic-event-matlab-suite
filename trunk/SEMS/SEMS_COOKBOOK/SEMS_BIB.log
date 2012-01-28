@@ -1,0 +1,22 @@
+This is pdfTeX, Version 3.1415926-1.40.10 (MiKTeX 2.8) (preloaded format=pdftex 2011.2.18)  18 FEB 2011 14:21
+entering extended mode
+**C:/Documents*and*Settings/dketner/Desktop/LaTEX/SEMS_COOKBOOK/SEMS_BIB.bib
+("C:/Documents and Settings/dketner/Desktop/LaTEX/SEMS_COOKBOOK/SEMS_BIB.bib"
+! Missing $ inserted.
+<inserted text> 
+                $
+<to be read again> 
+                   _
+l.30 @Article{trnkoczy_
+                       2002,
+? 
+! Emergency stop.
+<inserted text> 
+                $
+<to be read again> 
+                   _
+l.30 @Article{trnkoczy_
+                       2002,
+End of file on the terminal!
+
+!  ==> Fatal error occurred, no output PDF file produced!
