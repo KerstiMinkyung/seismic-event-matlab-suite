@@ -1,5 +1,4 @@
-
-function [tt cc] = seed_corr2(seed,start,wave)
+function [tt cc seed_out] = seed_corr2(seed,wave,start)
 
 %SEED_CORR: Continuous forward and reverse time correlation detector. This
 %   function takes input of waveform 'seed' and detects similar events by
@@ -8,17 +7,19 @@ function [tt cc] = seed_corr2(seed,start,wave)
 %   waveform to itself. The rate of replacement 'ror' determines how fast
 %   the seed adapts according to the equation: seed = seed(1-ror)+w(ror) 
 %   where 'w' is the newly detected waveform event. The variable 'ror' 
-%   should be set between 0 and 1 to operate correctly. The lower rate is, 
-%   the longer it will take to evolve (adaptability vs. stability).
+%   should be set between 0 and 1 to operate correctly. The lower ror is, 
+%   the longer it will take to evolve i.e. (adaptability vs. stability).
 %
-%USAGE: [t cc] = seed_corr(seed,start,varargin)
+%USAGE: [t cc seed_out] = seed_corr(seed,wave,start)
 %
 %INPUTS: seed - a waveform object used as the initial master waveform for 
 %               detection via correlation. The length of seed will 
 %               determine the length of the window being correlated.
 %               *required 
-%       start - where in time to begin detection (this should probably be 
-%               close to when the initial seed waveform occured).
+%       start - if 1, search is performed forwards through time
+%               if -1, search is performed backwards through time
+%               if a time value is used, seach will begin at this time 
+%               going both forwards and backwards through time.
 %               *required
 %         cth - correlation threshold, waveforms correlating above this
 %               value will be recorded.
@@ -31,10 +32,35 @@ function [tt cc] = seed_corr2(seed,start,wave)
 %               *default = [1 15]     
 %OUTPUTS: tt - time values of detections (leftmost end of detection window)
 %         cc - correlation values of detection.
+%         seed_out - evolved waveform seed after final detection, if start
+%               is 1 or -1, this will be a waveform of length 1. If start
+%               is a time value, seed_out will be of length 2. In this
+%               case, the resulting waveforms
+%DIAGRAM
+%                                      seed0
+%                                        |
+%                   seed-2       seed-1  |   seed+1        seed+2
+%           [  w-2 ] <-- [  w-1 ] <-- [  w0  ] --> [  w+1 ] --> [  w+2 ]
+%   start =    -1           -1           t            1            1
+%
+%  This diagram illustrates how seed detection is performed over multiple
+%  blocks of waveform data. An initial seed waveform is used from block w0
+%  which occurred at time t. This looks like:
+%  [tt cc seed_out] = seed_corr(seed0,w0,t);
+%  seed_out from this call results in 2 new seeds: seed-1 and seed+1
+%  Next, blocks occurring before (w-1) and after (w+1) are searched:
+%  [tt cc seed_out] = seed_corr(seed-1,w-1,-1);
+%  [tt cc seed_out] = seed_corr(seed+1,w+1,1);
+%  Detection of new waveform events can continue forwards and backwards
+%  through time in this fashion.
+
+% Author: Dane Ketner, Alaska Volcano Observatory
+% $Date$
+% $Revision$
 
 %% DEFAULT PROPERTIES
 cth = 0.7;
-block = 1/24;
+block = 6/24;
 ror = 0.1;
 bpf = [1 15];
 
@@ -47,7 +73,15 @@ cc = [];               % output corr values
 plt_inc = 1;      % plot increment, update plot after every plt_inc events
 plt_nxt = plt_inc; % next plot action will occur after event plt_nxt
 
+% if start == 1
+%     [tt cc seed_out] = seed_forward()
+% elseif start == -1
+%     [tt cc seed_out] = seed_backward()
+% else
+%     start = chk_t(start)
+
 %% SLIDE SEED BACKWARDS THROUGHT TIME
+%function seed_backwards()
 disp('Backwards through time!'), pause(0.1)
 t1 = start;
 found = 1;
@@ -93,6 +127,7 @@ end
 delete(wb_h)
 
 %% Forwards through time
+%function seed_forwards()
 disp('Forwards through time!')
 pause(0.1)
 sd = get(seed,'data');

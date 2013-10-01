@@ -25,6 +25,10 @@ function events = sta_lta_2(wave,edp,type)
 %
 %OUTPUTS: events - waveform object array of detected events
 
+% Author: Dane Ketner, Alaska Volcano Observatory
+% $Date$
+% $Revision$
+
 %% Initialize Waveform Variables
 
 v = get(wave,'data');          % Waveform data

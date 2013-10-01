@@ -1,16 +1,26 @@
 function sems_path
-%
+
 %SEMS_PATH: Sets path for m-files used by 'sems_gui' and 'sems_program'
 %
 %INPUTS: none
 %
 %OUTPUTS: none
 
-addpath(genpath('C:\Documents and Settings\dketner\Desktop\Backup_2011_11_18\SEMS'));
-addpath(genpath('C:\Documents and Settings\dketner\Desktop\Backup_2011_11_18\MatLAB Tools'));
-addpath(genpath('C:\Documents and Settings\dketner\Desktop\Backup_2011_11_18\Redoubt'));
+% Author: Dane Ketner, Alaska Volcano Observatory
+% $Date$
+% $Revision$
+
+addpath(genpath('C:\AVO\SEMS'));
+addpath(genpath('C:\AVO\MatLAB Tools\dynamicDateTicks'));
+addpath(genpath('C:\AVO\MatLAB Tools\fastsmooth'));
+addpath(genpath('C:\AVO\MatLAB Tools\GISMO_r362\GISMO'));
+addpath(genpath('C:\AVO\MatLAB Tools\nansuite'));
+addpath(genpath('C:\AVO\MatLAB Tools\stats'));
+addpath(genpath('C:\AVO\MatLAB Tools\Yair_Altman'));
 
 javaaddpath({
    'C:\Winston1.1\lib\colt.jar', ...
    'C:\Winston1.1\lib\mysql.jar', ...
    'C:\Winston1.1\lib\winston-bin.jar'});
+
+format compact
