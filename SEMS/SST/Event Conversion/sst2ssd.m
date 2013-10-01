@@ -20,12 +20,15 @@ function e_ssd = sst2ssd(e_sst,w)
 %
 %OUTPUTS: e_ssd - Start/Stop Data Points (references w) 
 
+Fs = get(w,'freq');
 tv = get(w,'timevector');
+wig = 1/24/60/60/Fs/2;
 if iscell(e_sst)
    if numel(e_sst) == numel(w)
       for l=1:numel(e_sst)
          for n=1:size(e_sst{l},1)
-            e_ssd{l}(n,:) = find(tv == e_sst{l}(n,:));
+            e_ssd{l}(n,1) = find((tv >= e_sst{l}(n,1)-wig)&&(tv <= e_sst{l}(n,1)+wig));
+            e_ssd{l}(n,2) = find((tv >= e_sst{l}(n,2)-wig)&&(tv <= e_sst{l}(n,2)+wig));
          end
       end
    else
@@ -33,9 +36,10 @@ if iscell(e_sst)
              ' waveform input ''w'' and cell input ''e_ssd'' must match']);
    end
 else
-   for n=1:size(e_ssd,1)
-      e_sst(n,:) = tv(e_ssd(n,:));
+   for n=1:size(e_sst,1)
+      e_ssd(n,1) = find((tv >= e_sst(n,1)-wig)&(tv <= e_sst(n,1)+wig));
+      e_ssd(n,2) = find((tv >= e_sst(n,2)-wig)&(tv <= e_sst(n,2)+wig));
    end
 end
 
-find((tv >= e_sst(n,1)-10*eps)&&(tv <= e_sst(n,1)+10*eps))
+%

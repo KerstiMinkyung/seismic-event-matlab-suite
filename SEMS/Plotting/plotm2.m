@@ -4,7 +4,8 @@ function plotm2(w,varargin)
 
 %%
 w = demean(w);
-w = w./mean(abs(w));
+%mscale = where I left off
+w = w./mean(abs(w)); % scale waveforms
 fh = figure;
 ax = axes;
 nw = numel(w);
@@ -26,8 +27,11 @@ if (nargin > 1)
       val = v{n+1};
       switch name
          case 'scale' % Event Start/Stop Times
-            sp = sp/val;
-         case 'fill' % Y-Tick Spacing
+            if isnumeric(val) && numel(val)==1
+               sp = sp/val; % Where I left off...
+            end
+            
+         case 'fill' % Trace Fill
             fill = val;
          case 'ylab' % Y-Tick Spacing
             ylabtype = val;   

@@ -50,8 +50,6 @@
 %       Instrument Channels nss chan m n ans
 % clc
 
-
-
 %%%%%%%%% Generates Structured Array: Net.Station.Station_fields %%%%%%%%%%
 
 fid = fopen('AV.txt');

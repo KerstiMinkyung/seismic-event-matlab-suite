@@ -22,7 +22,7 @@ else
 end
 
 while done == 0
-   if n<length(sst)
+   if n<size(sst,1)%% check this
       if sst(n,2) >= sst(n+1,1)-gap
          if sst(n,2) < sst(n+1,2)
             sst(n,:) = [sst(n,1) sst(n+1,2)];

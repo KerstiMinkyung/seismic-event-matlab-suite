@@ -91,7 +91,6 @@ inf = -20-10*gamma; % inf is the lowest possible value in img, by incresing
 cut = -20+10*mask;  % cut is the transparency threshold, by incresing mask, 
                     % cut increases, and less of the image is displayed.
                     % cut should be greater or equal to inf
-if cut<inf, cut=inf; end
 M=max(max(img));
 warning off
 img = 10*log10(img/M);
