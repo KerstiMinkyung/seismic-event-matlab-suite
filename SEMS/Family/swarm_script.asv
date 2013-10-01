@@ -1,0 +1,265 @@
+
+%%
+f = fullfile('C:','Work','Iliamna','Single_Station_Detection','ILW','Block_Correlation');
+cd(f)
+
+%%
+C001 = correlation([B001; B002])
+C001 = taper(C001);
+C001 = butter(C001,[1 10]);
+C001 = xcorr(C001,[-1,5]);
+C001 = sort(C001);
+C001 = adjusttrig(C001,'MIN');
+C001 = linkage2(C001);
+save('C001.mat','C001')
+clear C001
+
+%%
+save('B001.mat','B001')
+save('B002.mat','B002')
+save('B003.mat','B003')
+save('B004.mat','B004')
+save('B005.mat','B005')
+save('B006.mat','B006')
+save('B007.mat','B007')
+save('B008.mat','B008')
+save('B009.mat','B009')
+
+%%
+load('B002.mat');
+load('B003.mat');
+C002 = correlation([B002; B003])
+clear B002 B003
+C002 = taper(C002);
+C002 = butter(C002,[1 10]);
+C002 = xcorr(C002,[-1,5]);
+C002 = sort(C002);
+C002 = adjusttrig(C002,'MIN');
+C002 = linkage2(C002);
+save('C002.mat','C002')
+clear C002
+
+load('B003.mat');
+load('B004.mat');
+C003 = correlation([B003; B004])
+clear B003 B004
+C003 = taper(C003);
+C003 = butter(C003,[1 10]);
+C003 = xcorr(C003,[-1,5]);
+C003 = sort(C003);
+C003 = adjusttrig(C003,'MIN');
+C003 = linkage2(C003);
+save('C003.mat','C003')
+clear C003
+
+load('B004.mat');
+load('B005.mat');
+C004 = correlation([B004; B005])
+clear B004 B005
+C004 = taper(C004);
+C004 = butter(C004,[1 10]);
+C004 = xcorr(C004,[-1,5]);
+C004 = sort(C004);
+C004 = adjusttrig(C004,'MIN');
+C004 = linkage2(C004);
+save('C004.mat','C004')
+clear C004
+
+load('B005.mat');
+load('B006.mat');
+C005 = correlation([B005; B006])
+clear B005 B006
+C005 = taper(C005);
+C005 = butter(C005,[1 10]);
+C005 = xcorr(C005,[-1,5]);
+C005 = sort(C005);
+C005 = adjusttrig(C005,'MIN');
+C005 = linkage2(C005);
+save('C005.mat','C005')
+clear C005
+
+load('B006.mat');
+load('B007.mat');
+C006 = correlation([B006; B007])
+clear B006 B007
+C006 = taper(C006);
+C006 = butter(C006,[1 10]);
+C006 = xcorr(C006,[-1,5]);
+C006 = sort(C006);
+C006 = adjusttrig(C006,'MIN');
+C006 = linkage2(C006);
+save('C006.mat','C006')
+clear C006
+
+load('B007.mat');
+load('B008.mat');
+C007 = correlation([B007; B008])
+clear B007 B008
+C007 = taper(C007);
+C007 = butter(C007,[1 10]);
+C007 = xcorr(C007,[-1,5]);
+C007 = sort(C007);
+C007 = adjusttrig(C007,'MIN');
+C007 = linkage2(C007);
+save('C007.mat','C007')
+clear C007
+
+load('B008.mat');
+load('B009.mat');
+C008 = correlation([B008; B009])
+clear B008 B009
+C008 = taper(C008);
+C008 = butter(C008,[1 10]);
+C008 = xcorr(C008,[-1,5]);
+C008 = sort(C008);
+C008 = adjusttrig(C008,'MIN');
+C008 = linkage2(C008);
+save('C008.mat','C008')
+clear C008
+
+%%
+load('C001')
+C001 = cluster(C001,.75);
+stat001 = getclusterstat(C001);
+ind = stat001.index;
+clear C001
+
+load('C002')
+C002 = cluster(C002,.75);
+stat002 = getclusterstat(C002);
+ind_002 = stat002.index;
+for n=1:length(ind_002), ind_002{n}=ind_002{n}+1000; end
+clear C002
+
+load('C003')
+C003 = cluster(C003,.75);
+stat003 = getclusterstat(C003);
+ind_003 = stat003.index;
+for n=1:length(ind_003), ind_003{n}=ind_003{n}+2000; end
+clear C003
+
+load('C004')
+C004 = cluster(C004,.75);
+stat004 = getclusterstat(C004);
+ind_004 = stat004.index;
+for n=1:length(ind_004), ind_004{n}=ind_004{n}+3000; end
+clear C004
+
+%%
+
+load('C005')
+C005 = cluster(C005,.75);
+stat005 = getclusterstat(C005);
+ind_005 = stat005.index;
+for n=1:length(ind_005), ind_005{n}=ind_005{n}+4000; end
+clear C005
+%%
+
+load('C006')
+C006 = cluster(C006,.75);
+stat006 = getclusterstat(C006);
+ind_006 = stat006.index;
+for n=1:length(ind_006), ind_006{n}=ind_006{n}+5000; end
+clear C006
+
+load('C007')
+C007 = cluster(C007,.75);
+stat007 = getclusterstat(C007);
+ind_007 = stat007.index;
+for n=1:length(ind_007), ind_007{n}=ind_007{n}+6000; end
+clear C007
+
+load('C008')
+C008 = cluster(C008,.75);
+stat008 = getclusterstat(C008);
+ind_008 = stat008.index;
+for n=1:length(ind_008), ind_008{n}=ind_008{n}+7000; end
+clear C008
+
+%%
+tic
+cind = ind_008;
+for n = 1:length(cind)
+   over = 0;
+   for m = 1:length(ind)
+      noe = length(intersect(cind{n},ind{m}));
+      if noe > over
+         over = noe;
+         ref = m;
+      end
+   end
+   if over > 2
+      ind{ref} = [ind{ref};cind{n}];
+      ind{ref} = unique(sort(ind{ref}));
+   else
+      ind{end+1} = cind{n};
+   end
+end
+toc
+
+%%
+for n = 1:length(ind)
+   L(n) = numel(ind{n});
+end
+[V I] = sort(L);
+
+%% CORRELATE ALL FAMILY TO GET TRIG TIMES
+n=20; 
+c = correlation(F{20});
+c = taper(c);
+c = butter(c,[1 10]);
+c = xcorr(c,[-1,5]);
+c = sort(c);
+c = adjusttrig(c,'MIN');
+trig = get(c,'trig');
+
+%% BUILD FAMILY WAVEFORM STRUCTURE WITH MANUALLY SELECTED TIME WINDOW
+%F{n} = waveform;
+for m = 1:length(trig)
+   F{n}(1,m)=get_red_w('ref:ehz',trig(m)-2/24/60/60,trig(m)+8/24/60/60,1);
+end
+figure, plot(stack(F{n}))
+grid on
+plot(c,'corr')
+
+%% MAKE CUT BASED ON MINIMUM CUMULATIVE CORR
+clear cut
+csum = sum(get(c,'corr')); 
+[cut(:,1) cut(:,2)] = sort(csum); 
+clear csum
+
+%% CUT MINIMUM
+cut = cut(1:27,2);
+ind{n}(cut) = [];
+
+%% CUT SELECTION
+ind{n}(1) = [];
+
+%% DELETE
+ind(n) = [];
+F(n) = [];
+
+%% BIN CORRELATE ALL WAVEFORMS IN LARGE FAMILY
+for n=9:10
+   if n<10
+      sub = F{1}(1+(n-1)*500:n*500);
+   else
+      sub = F{1}(1+(n-1)*500:end);
+   end
+   c = correlation(sub);
+   c = taper(c);
+   c = butter(c,[1 10]);
+   c = xcorr(c,[-1,5]);
+   c = sort(c);
+   c = adjusttrig(c,'MIN');
+   trig = get(c,'trig');
+   for m=1:length(trig)
+      sub(m) = get_red_w('ref:ehz',trig(m)-2/24/60/60,trig(m)+6/24/60/60,0);
+   end
+   if n<10
+      F{1}(1+(n-1)*500:n*500) = sub;
+   else
+      F{1}(1+(n-1)*500:end) = sub;
+   end
+end
+
