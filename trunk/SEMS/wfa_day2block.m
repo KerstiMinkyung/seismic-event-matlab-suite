@@ -1,4 +1,4 @@
-function log = wfa_day2block(log)
+function config = wfa_day2block(config)
 
 %WFA_DAY2BLOCK: Take daily waveform event detection arrays and convert them 
 %   to blocks of the same size. --> i.e. consider 1 week of daily event 
@@ -18,24 +18,25 @@ function log = wfa_day2block(log)
 %           Block 5 (200 events)
 %           Block 6 (180 events)
 %
-%USAGE: wfa_day2block(log)
+%USAGE: wfa_day2block(config)
 %
-%INPUTS:  log
+%INPUTS:  config
 %
-%OUTPUTS: log
+%OUTPUTS: config
 
 %% CHECK d1 AND d2 INPUTS
 
 cur_dir = cd; % save original directory
 try
-for n = 1:numel(log.scnl)
-   day_dir = fullfile(log.root,get(log.scnl(n),'station'),'wfa_day');
-   block_dir = fullfile(log.root,get(log.scnl(n),'station'),'wfa_block');
-   blocksize = log.blocksize;
+for n = 1:numel(config.scnl)
+   sta = get(config.scnl(n),'station');
+   day_dir = fullfile(config.root_dir,sta,'wfa_day');
+   block_dir = fullfile(config.root_dir,sta,'wfa_block');
+   blocksize = config.family.cc_size;
    W = [];
    block_n = 1;
    
-   for day = log.start:log.end
+   for day = config.start:config.end
       cd(day_dir)
       try
          load([datestr(day,29),'.mat'],'wfa_day')
@@ -49,22 +50,23 @@ for n = 1:numel(log.scnl)
             cd(block_dir)
             wfa_block = W(1:blocksize);
             save(['WFA_BLOCK_',num2str(block_n,'%03.0f'),'.mat'],'wfa_block')
-            log.blockcnt(n) = block_n;
+            config.family.blockcnt(n) = block_n;
             W(1:blocksize) = [];
             block_n = block_n + 1;
          end
       end
    end
-
-   if numel(W)> 0 % Residual
+   
+   % Residual
+   if numel(W)> 0 
       cd(block_dir)
       wfa_block = W;
       save(['WFA_BLOCK_',num2str(block_n,'%03.0f'),'.mat'],'wfa_block')
    end
 end
 catch
-   cd(log.root)
-   save log
+   cd(config.root_dir)
+   save config
 end
 cd(cur_dir) % Reset to original directory
 

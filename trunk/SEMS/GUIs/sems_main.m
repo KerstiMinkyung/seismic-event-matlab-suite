@@ -21,24 +21,15 @@ end
 %%
 function sems_main_OpeningFcn(hObject, eventdata, handles, varargin)
 
-handles=guidata(gcf);
-handles.config = [];
-setappdata(0,'config',handles.config)
-handles.log = [];
-setappdata(0,'config',handles.log)
-setappdata(0,'sems_main_fig',handles.sems_main_fig)
-
-handles.output = [];
-guidata(hObject, handles);
+setappdata(0,'config',[])
+setappdata(0,'log',[])
+setappdata(0,'sems_main_fig',hObject)
 
 %% CHANGE ICON TO SEMS ICON
 warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
 jframe=get(handles.sems_main_fig,'javaframe');
-jIcon=javax.swing.ImageIcon('C:\Work\SEMS\GUIs\sems_icon.gif');
+jIcon=javax.swing.ImageIcon('C:\AVO\SEMS\GUIs\sems_icon.gif');
 jframe.setFigureIcon(jIcon);
-
-%% UIWAIT makes sems_config wait for user response (see UIRESUME)
-uiwait(handles.sems_main_fig);
 
 %%
 function varargout = sems_main_OutputFcn(hObject, eventdata, handles) 
@@ -46,12 +37,12 @@ varargout{1} = [];
 
 %%
 function slider1_Callback(hObject, eventdata, handles)
+
 function callback_scrolltext(source,event,hText)
   textString = get(hText,'UserData');
   nLines = numel(textString);
   lineIndex = nLines-round(get(source,'Value'));
   set(hText,'String',textString(lineIndex:nLines));
-
 
 function slider1_CreateFcn(hObject, eventdata, handles)
 
@@ -74,16 +65,17 @@ function update_scrolltext(newText,hText,hSlider)
 %update_scrolltext({'hello'},hText,hSlider);
 %update_scrolltext({'hello'; 'there'; 'silly'; 'world'},hText,hSlider);
 
-
 function file_mnu_Callback(hObject, eventdata, handles)
 
 function new_proj_mnu_Callback(hObject, eventdata, handles)
 handles = guidata(gcf);
-tmp = sems_config;
+handles = enable(handles,0);
+sems_config
 waitfor(getappdata(0,'sems_config_fig'));
 handles.config = getappdata(0,'config');
 set(handles.config_edt,'String',handles.config.config_path);
 set(handles.log_edt,'String',handles.config.log_path);
+handles = enable(handles,1);
 h = handles.config.dur;
 w = numel(handles.config.scnl);
 handles.log.wavefetch = nan(h,w);
@@ -91,9 +83,9 @@ handles.log.eventcount = nan(h,w);
 handles.log.cur_day = 1;
 handles.log.cur_scnl = 1;
 handles.log.blockcnt = zeros(1,w);
-log = handles.log;
-[pathstr, name, ext, versn] = fileparts(handles.config.log_path);
+[pathstr, name, ext] = fileparts(handles.config.log_path);
 cd(pathstr)
+log = handles.log;
 save(name,'log')
 guidata(gcf, handles);
 

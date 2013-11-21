@@ -10,6 +10,7 @@ function wave = filt(wave,f_type,f_rng)
 %OUTPUT: wave - filtered waveform
 
 wave = fillgaps(wave,0);
+f_ny = get(wave,'freq');
 if strcmpi(f_type,'bp')
    wave = filtfilt(filterobject('B',f_rng,2),wave);
 elseif strcmpi(f_type,'hp')

@@ -24,10 +24,17 @@ function [p_time p_val] = findpeaks(w,min,space)
 %OUTPUTS: p_time - Matlab datenum values of peak times
 %         p_val  - corresponding peak values
 
-dat = get(w,'data'); 
-dat_l = get(w,'data_length');
-Fs = get(w,'freq');
-tv = get(w,'timevector');
+if isa(w,'waveform')
+    dat = get(w,'data');
+    dat_l = get(w,'data_length');
+    Fs = get(w,'freq');
+    tv = get(w,'timevector');
+    space = space*Fs;
+elseif isnumeric(w)
+    dat = w;
+    dat_l = length(w);
+    tv = 1:dat_l;
+end
 
 dif_dat = diff(dat);     % Data slope
 pos = (dif_dat > 0);     % Indices of positive slope
@@ -42,7 +49,7 @@ p_val = dat(peaks);               % correlation values
 
 k = 1;                            % If 2 peaks are closer than space,
 while k < numel(peaks)            % Remove the lesser of the 2     
-   if peaks(k)>=peaks(k+1)-space*Fs 
+   if peaks(k)>=peaks(k+1)-space
       [Y I] = max([dat(peaks(k)) dat(peaks(k+1))]);
       peaks(k+2-I) = [];
    else

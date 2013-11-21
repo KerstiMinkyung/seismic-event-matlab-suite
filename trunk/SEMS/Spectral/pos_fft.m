@@ -5,9 +5,9 @@ if (nargin >= 1) && isa(w,'waveform')
    Ny = get(w(1),'freq')/2;
    d = double(demean(w));
    clear w
-   [y x] = size(d);
+   [y, x] = size(d);
    nfft = 2^(nextpow2(y));
-   nfr = [0 1];
+   fr = [0 Ny];
    smo = 0;
    tap = 0;
    norm = 0;
@@ -29,8 +29,10 @@ if (nargin > 1)
       switch name
          case 'nfft'     % Number of elements in Discrete Fourier Tansform
             nfft = val;  %
+         case 'fr'       % Frequency Range to return
+            fr = val;    %   [fr1 fr2] Hz            
          case 'nfr'      % Normalized Frequency Range to return
-            nfr = val;   %   [0 1] --> [0 Ny] Hz
+            fr = val*Ny; %   [0 1] --> [0 Ny] Hz
          case 'smooth'   % Smooth resulting Amplitudes 
             smo = val;   %   using this window size (# of samples)     
          case 'taper'    % Taper using a Hanning window (0 to 1)
@@ -71,7 +73,6 @@ for k = 1:x
 end
 
 %% RETURN ONLY FREQS SPECIFIED BY 'nfr'
-fr = nfr*Ny;
 range = find((F>=fr(1))&(F<=fr(2)));
 A = A(range,:);
 F = F(range,:);
