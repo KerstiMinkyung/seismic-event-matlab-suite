@@ -1,12 +1,12 @@
-function log = corrblock2clust(log)
+function config = corrblock2clust(config)
 
 %CORRBLOCK2CLUST: Clustering portion of block correlation technique
 %
-%USAGE: log = corrblock2clust(log)
+%USAGE: config = corrblock2clust(config)
 %
-%INPUTS: log
+%INPUTS: config
 %        
-%OUTPUTS: log
+%OUTPUTS: config
 %
 %DIAGRAM:
 %   ______________________________
@@ -33,10 +33,10 @@ function log = corrblock2clust(log)
 %                        |        |        |
 %                   (m-1)*OVR   m*OVR   (m+1)*OVR
 
-for n = 1%:numel(log.scnl)
-   cb_dir = fullfile(log.root,get(log.scnl(n),'station'),'corr_block');
-   fc_dir = fullfile(log.root,get(log.scnl(n),'station'),'fam_clust');
-   OVR = log.blocksize;
+for n = 1:numel(config.scnl)
+   cb_dir = fullfile(config.root_dir,get(config.scnl(n),'station'),'corr_block');
+   fc_dir = fullfile(config.root_dir,get(config.scnl(n),'station'),'fam_clust');
+   OVR = config.family.cc_size;
    % EXP.I: Expired Cluster Indices (These are extracted from MAS_IND)
    EXP.I = [];
    % EXP.T: Expired Cluster Times (These are extracted from MAS_IND)
@@ -45,14 +45,15 @@ for n = 1%:numel(log.scnl)
    EXP.C = [];
    % EXP.L: Expired Cluster Lag Matrix (These are extracted from MAS_IND)
    EXP.L = [];
-   for m = 1:log.blockcnt(n)-1
-      disp(['---------->', get(log.scnl(n),'station'),': Block ',num2str(m),' <----------'])
+   for m = 1:config.family.blockcnt(n)-1
+      disp(['---------->', get(config.scnl(n),'station'),': Block ',...
+          num2str(m),' <----------'])
       cd(cb_dir)
       load(['CORR_BLOCK_',num2str(m,'%03.0f'),'.mat'])
-      % Get clusters from correlation object 'c' using threshold (log.cc)
+      % Get clusters from correlation object 'c' using threshold (config.cc)
       corr = get(c,'corr');
       lag = get(c,'lag');
-      c = cluster(c,log.cc);
+      c = cluster(c,config.family.cc);
       stat = getclusterstat(c);
       clear CUR
       % CUR.I: Current Cluster Indices from Current Correlation Block 
@@ -73,7 +74,7 @@ for n = 1%:numel(log.scnl)
       bgn(cut) = [];
       clear c corr lag stat
       % Sort Clusters Chronologically based on first waveform arrival
-      [t_val t_pos] = sort(bgn);
+      [t_val, t_pos] = sort(bgn);
       CUR.I = CUR.I(t_pos);
       CUR.T = CUR.T(t_pos);
       CUR.C = CUR.C(t_pos);
@@ -168,14 +169,16 @@ for n = 1%:numel(log.scnl)
                   NANLag(B2U,B2U) = CUR.SL;   
                   MST.L{maxref} = NANLag;
                   clear A B C U U2C C2U A2U B2U NANCorr NANLag 
-                  disp(['Connection --> RS: ',num2str(maxR),' LS: ',num2str(numel(CUR.LSI)),' NOE: ',num2str(maxovr)])
+                  disp(['Connection --> RS: ',num2str(maxR),' LS: ',...
+                        num2str(numel(CUR.LSI)),' NOE: ',num2str(maxovr)])
                end
             else % A new cluster is added to MST.I
                MST.I{numel(MST.I)+1} = CUR.SI;
                MST.T{numel(MST.T)+1} = CUR.ST;
                MST.C{numel(MST.C)+1} = CUR.SC;
                MST.L{numel(MST.L)+1} = CUR.SL;               
-               disp(['No Connection --> RS: ',num2str(maxR),' LS: ',num2str(numel(CUR.LSI)),' NOE: ',num2str(maxovr)])
+               disp(['No Connection --> RS: ',num2str(maxR),' LS: ',...
+                     num2str(numel(CUR.LSI)),' NOE: ',num2str(maxovr)])
             end
          end
       end

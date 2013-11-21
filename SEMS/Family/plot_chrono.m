@@ -35,8 +35,8 @@ end
 set(ax,'YTick',ypos)
 set(ax,'YTickLabel',ylab)
 set(ax,'XGrid','on')
-YLabel('MULTIPLET NUMBER')
-XLabel('DATE')
+ylabel('MULTIPLET NUMBER')
+xlabel('DATE')
 dynamicDateTicks
 ylim([0,1])
 
@@ -59,7 +59,7 @@ ylim([0,1])
 % set(ax2,'YTick',ypos)
 % set(ax2,'YTickLabel',[])
 % set(ax2,'XGrid','on')
-% XLabel('')
+% xlabel('')
 % set(ax2,'XTick',xpos)
 % set(ax2,'XTickLabel',xlab)
 % ax3 = [ax,ax2];
@@ -84,7 +84,7 @@ end
 set(ax2,'YTick',ypos)
 set(ax2,'YTickLabel',[])
 set(ax2,'XGrid','on')
-XLabel('EVENT COUNT')
+xlabel('EVENT COUNT')
 set(ax2,'XTick',xpos)
 set(ax2,'XTickLabel',xlab)
 ax3 = [ax,ax2];

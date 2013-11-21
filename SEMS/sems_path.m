@@ -11,11 +11,12 @@ function sems_path
 % $Revision$
 
 addpath(genpath('C:\AVO\SEMS'));
+addpath(genpath('C:\AVO\GISMO'));
+addpath('C:\AVO\Deep LP');
 addpath(genpath('C:\AVO\MatLAB Tools\dynamicDateTicks'));
 addpath(genpath('C:\AVO\MatLAB Tools\fastsmooth'));
-addpath(genpath('C:\AVO\MatLAB Tools\GISMO_r362\GISMO'));
 addpath(genpath('C:\AVO\MatLAB Tools\nansuite'));
-addpath(genpath('C:\AVO\MatLAB Tools\stats'));
+addpath(genpath('C:\AVO\MatLAB Tools\miniSeed'));
 addpath(genpath('C:\AVO\MatLAB Tools\Yair_Altman'));
 
 javaaddpath({
