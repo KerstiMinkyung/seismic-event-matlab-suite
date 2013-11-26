@@ -1,5 +1,24 @@
 function [A F] = pos_fft(w,varargin)
 
+%POS_FFT: Returns real-positive amplitudes and frequencies (Hz) for inputed
+%         waveform (w).
+%
+%USAGE: [A F] = pos_fft(w)
+%       [A F] = pos_fft(w,prop_name, prop_val)
+%
+%STATIC INPUTS: w - waveform object
+%
+%VALID PROP_NAME/PROP_VAL PAIRS:
+%  'nfft'  --> (1x1)-[numeric]-[default: 2^(nextpow2(L))]
+%  'fr'    --> (1x2)-[numeric]-[default: [0 Nyquist]]
+%  'nfr'   --> (1x2)-[numeric]-[default: [0 1]]
+%  'smooth'--> (1x1)-[numeric]-[default: 0]
+%  'taper' --> (1x1)-[numeric]-[default: 0]
+%  'norm'  --> (1x1)-[numeric]-[default: 0]
+%
+%OUTPUTS: A - Real/Pos amplitudes
+%         F - Frequencies (Hz)
+
 %% DEFAULT PROPERTIES
 if (nargin >= 1) && isa(w,'waveform')
    Ny = get(w(1),'freq')/2;
