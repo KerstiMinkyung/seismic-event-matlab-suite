@@ -1,7 +1,26 @@
 
 function scat2img(X,Y,varargin)
 
-% SCAT2IMG: Scatter plot 
+%SCAT2IMG: Plots a scatter plot with a heat map image replacing the
+%          saturated portions of the plot where
+%
+%USAGE: scat2img(X,Y)
+%       scat2img(X,Y,prop_name, prop_val)
+%
+%STATIC INPUTS: X - horizontal axis data
+%               Y - vertical axis data
+%
+%VALID PROP_NAME/PROP_VAL PAIRS:
+%  'xlim'  --> (1x2)-[numeric]-[default: [min(X) max(X)]]
+%  'ylim'  --> (1x2)-[numeric]-[default: [min(Y) max(Y)]]
+%  'xsize' --> (1x1)-[numeric]-[default: 800]
+%  'ysize' --> (1x1)-[numeric]-[default: 600]
+%  'size'  --> (1x2)-[numeric]-[default: [800 600]]
+%  'gamma' --> (1x1)-[numeric]-[default: 0]
+%  'mask'  --> (1x1)-[numeric]-[default: 0]
+%  'smooth'--> (1x1)-[numeric]-[default: 8]
+%
+%OUTPUTS: none 
 
 %% CHECK X AND Y INPUTS
 if nargin < 2
@@ -19,7 +38,7 @@ xlim = [min(X) max(X)];
 ylim = [min(Y) max(Y)];
 gamma = 0;
 mask = 0;
-win = 8;
+swin = 8;
 
 %% USER-DEFINED PROPERTIES
 if (nargin > 2)
@@ -49,7 +68,7 @@ if (nargin > 2)
          case 'mask'    
             mask = val;            
          case 'smooth'    
-            win = val;            
+            swin = val;            
          otherwise
             error('scat2img: Property name not recognized')
       end
@@ -80,9 +99,9 @@ for n=1:numel(Yg)
 end
 
 %% SMOOTH IMG
-gw= exp( -((1:win-win/2)/(win/5)).^2)'; % Create Gaussian Window Length=win
-img = conv2(img, gw); img = img';       % Smooth vertically
-img = conv2(img, gw); img = img';       % Smooth horizontally
+gw= exp( -((1:swin-swin/2)/(swin/5)).^2)'; % Gaussian Window Length = swin
+img = conv2(img, gw); img = img';          % Smooth vertically
+img = conv2(img, gw); img = img';          % Smooth horizontally
 
 %% SCALE
 inf = -20-10*gamma; % inf is the lowest possible value in img, by incresing 

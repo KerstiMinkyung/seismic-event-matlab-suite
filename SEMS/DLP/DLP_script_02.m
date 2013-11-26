@@ -140,3 +140,42 @@ for n = 501:510%numel(Master)
     close all
 end
 
+%%
+warning off
+cd('C:\AVO\Deep LP\DLP_wfa')
+for n = 1:numel(Master.evid)
+    load([num2str(Master.evid(n)),'.mat'])
+    W = W(isvertical(W));
+    fftA = zeros(1,512);
+    p = [];
+    for m = 1:numel(W)
+        p = get(W(m),'P_DATENUM');
+        if ~isempty(p)
+            w = extract(W(m),'TIME',p,p+20.48/24/60/60);
+            p = [];
+            w = filt(w,'hp',.5);
+            f = get(w,'freq');
+            if round(f) == 50
+                [A, F] = pos_fft(w,'nfft',1024,'fr',[0 25],'taper',.025);
+                A = [A; 0]; F = [F; 0];
+                fftA(m,:) = A(1:512)./nanmean(A(1:512));
+            elseif round(f) == 100
+                [A, F] = pos_fft(w,'nfft',2048,'fr',[0 25],'taper',.025);
+                A = [A; 0]; F = [F; 0];
+                fftA(m,:) = A(1:512)./nanmean(A(1:512));
+            end
+        end
+    end
+    if sum(fftA(1,:))>0
+        [V R] = nanmax(fftA');
+        Master.pfmed(n) = nanmedian(F(R));
+        [V R] = nanmax(sum(fftA));
+        Master.pfstk(n) = F(R);
+    else
+        Master.pfmed(n) = NaN;
+        Master.pfstk(n) = NaN;
+    end
+    %clear A F pf fftA V R w W
+    disp(num2str(n))
+end
+
