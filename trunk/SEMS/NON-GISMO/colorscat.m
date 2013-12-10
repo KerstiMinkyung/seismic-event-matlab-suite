@@ -14,13 +14,15 @@ function colorscat(X,Y,S,R,varargin)
 %
 %VALID PROP_NAME/PROP_VAL PAIRS:
 %  'nbins'      --> (1x1)-[numeric]-[default: 50]
-%  'colorlabel' --> (1x2)-[char]   -[default: '']
+%  'cbarlab'    --> (1x2)-[char]   -[default: '']
+%  'cbar'       --> (1x1)-[logical]-[default: true]
 %  'time'       --> (1x1)-[logical]-[default: false]
 %
 %OUTPUTS: none 
 
 nbins = 50;
-colorlabel = '';
+cbarlab = '';
+cbar = 1;
 time = 0;
 
 %%
@@ -39,8 +41,10 @@ if (nargin > 4)
             if isnumeric(val) && numel(val)==1
                nbins = val;
             end
-         case 'colorlabel' 
-            colorlabel = val;  
+         case 'cbarlab' 
+            cbarlab = val;  
+         case 'cbar' 
+            cbar = val;     
          case 'time' 
             time = val;    
          otherwise
@@ -60,15 +64,17 @@ for n=1:nbins
     scatter(X(ref),Y(ref),S(ref),'markerEdgeColor','k','markerFaceColor',c(n,:))
 end
 
-rng = linspace(min(R),max(R),11);
-for n = 1:11
-    if time
-        clab{n} = datestr(rng(n),'yyyy');
-    else
-        clab{n} = num2str(rng(n));
+if cbar
+    rng = linspace(min(R),max(R),11);
+    for n = 1:11
+        if time
+            clab{n} = datestr(rng(n),'yyyy');
+        else
+            clab{n} = num2str(rng(n));
+        end
     end
+    colorbar('YTickLabel',clab)
+    title(cbarlab)
 end
-colorbar('YTickLabel',clab)
-title(colorlabel)
 
 
