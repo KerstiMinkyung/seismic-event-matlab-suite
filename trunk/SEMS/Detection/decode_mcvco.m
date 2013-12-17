@@ -17,6 +17,8 @@ function varargout = decode_mcvco(wave,varargin)
 %
 %OUTPUTS: sst  - cal pulse start/stop times (1x2 double)
 %         data - bit data from signal (1x25 boolean)
+%         gain - instrument gain (1x1 double)
+%           id - instrument ID (1x1 double)
 %         resp - instrument response data (1x1 waveform)
 %         bvl  - battery voltage levels (1x1 double)
 %         amp  - tone amplitude (from Goertzel Algorithm)
@@ -102,47 +104,59 @@ end
 
 %% USER-DEFINED OUTPUTS
 for n = 1:numel(varargin)
-   switch(varargin{n})
-      case{'sst'}
-         if complete
-         varargout{n} = [tv(tone_edge(1)-10), tv(k+.25*Fs+10)];
-         else
-         varargout{n} = NaN;   
-         end
-      case{'data'}
-         if complete
-         varargout{n} = {bin_data};
-         else
-         varargout{n} = NaN;   
-         end
-      case{'resp'}
-         if complete
-            varargout{n} = extract(wave,'INDEX',tone_edge(2),...
-                                                tone_edge(2)+18*Fs);
-         else
-            varargout{n} = NaN;
-         end
-      case{'bvl'}
-         if complete
-         varargout{n} = bin2dec(num2str(bin_data(14:25)))/100;
-         else
-            varargout{n} = NaN;
-         end
-      case{'amp'}
-         if complete
-            varargout{n} = max_s;
-         else
-            varargout{n} = NaN;
-         end
-      case{'plot'}
-         if complete
-            figure
-            plot(extract(wave,'INDEX',tone_edge(1)-Fs,k+.25*Fs+Fs))
-            hold on
-         scatter((bin_ref-tone_edge(1)+Fs)/Fs,v(bin_ref),'*','r')
-         else
-         end
-   end
+    if complete
+        switch(lower(varargin{n}))
+            case{'sst'}
+                varargout{n} = [tv(tone_edge(1)-10), tv(k+.25*Fs+10)];
+                
+            case{'data'}
+                varargout{n} = {bin_data};
+                
+            case{'gain'}
+                switch bin2dec(num2str(bin_data(1:3)))
+                    case 0
+                        varargout{n} = 42;
+                    case 1
+                        varargout{n} = 48;
+                    case 2
+                        varargout{n} = 54;
+                    case 3
+                        varargout{n} = 60;
+                    case 4
+                        varargout{n} = 66;
+                    case 5
+                        varargout{n} = 72;
+                    case 6
+                        varargout{n} = 78;
+                    case 7
+                        varargout{n} = 84;
+                end
+                
+            case{'id'}
+                varargout{n} = bin2dec(num2str(bin_data(4:13)));
+                
+                
+            case{'resp'}
+                varargout{n} = extract(wave,'INDEX',tone_edge(2),...
+                    tone_edge(2)+18*Fs);
+                
+            case{'bvl'}
+                varargout{n} = bin2dec(num2str(bin_data(14:25)))/100;
+                
+            case{'amp'}
+                varargout{n} = max_s;
+                
+            case{'plot'}
+                
+                fh = figure;
+                plot(extract(wave,'INDEX',tone_edge(1)-Fs,k+.25*Fs+Fs))
+                hold on
+                scatter((bin_ref-tone_edge(1)+Fs)/Fs,v(bin_ref),'*','r')  
+                varargout{n} = fh;
+        end
+    else
+        varargout{n} = NaN;
+    end
 end
 
 %% Compute Goertzel Algorithm
