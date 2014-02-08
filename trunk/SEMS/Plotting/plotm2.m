@@ -58,15 +58,19 @@ for n = 1:nw
       if n==1, hold on, end
    end
    ypos(n)=cl(n);
-   switch ylabtype
-      case 'time'
-         ylab{n}=datestr(start);
-      case {'station','sta'}
-         ylab{n}=get(w(n),'station');
-      case {'station-channel','station:channel','station/channel',...
-            'sta-chan','sta:chan','sta/chan','stachan'}
-         ylab{n}=[get(w(n),'station'),':',get(w(n),'channel')];
-         if n==1, title(datestr(start)), end
+   if ~isempty(w(n))
+       switch ylabtype
+           case 'time'
+               ylab{n}=datestr(start);
+           case {'station','sta'}
+               ylab{n}=get(w(n),'station');
+           case {'station-channel','station:channel','station/channel',...
+                   'sta-chan','sta:chan','sta/chan','stachan'}
+               ylab{n}=[get(w(n),'station'),':',get(w(n),'channel')];
+               if n==1, title(datestr(start)), end
+       end
+   else
+       ylab{n}=[];
    end
 end
 ypos=ypos(end:-1:1);
