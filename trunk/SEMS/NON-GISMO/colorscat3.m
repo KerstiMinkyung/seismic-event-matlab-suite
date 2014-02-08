@@ -20,8 +20,10 @@ function colorscat3(X,Y,Z,S,R,varargin)
 %OUTPUTS: none 
 
 nbins = 50;
-colorlabel = '';
+cbarlab = '';
+cbar = 1;
 time = 0;
+rng = [];
 
 %%
 if (nargin > 5)
@@ -39,8 +41,12 @@ if (nargin > 5)
             if isnumeric(val) && numel(val)==1
                nbins = val;
             end
-         case 'colorlabel' 
-            colorlabel = val;  
+         case 'range'
+             rng = val;
+         case 'cbarlab' 
+            cbarlab = val;  
+         case 'cbar' 
+            cbar = val;       
          case 'time' 
             time = val;    
          otherwise
@@ -58,18 +64,22 @@ for n=1:nbins
     if n == 2, hold on, end
     ref = r == n;
     scatter3(X(ref),Y(ref),Z(ref),S(ref),'markerEdgeColor','k',...
-                                         'markerFaceColor',c(n,:))
+        'markerFaceColor',c(n,:))
 end
 
-rng = linspace(min(R),max(R),11);
-for n = 1:11
-    if time
-        clab{n} = datestr(rng(n),'yyyy');
-    else
-        clab{n} = num2str(rng(n));
+if cbar
+    if isempty(rng)
+        rng = linspace(min(R),max(R),11);
     end
+    for n = numel(rng)
+        if time
+            clab{n} = datestr(rng(n),'yyyy');
+        else
+            clab{n} = num2str(rng(n));
+        end
+    end
+    colorbar('YTickLabel',clab)
+    title(cbarlab)
 end
-colorbar('YTickLabel',clab)
-title(colorlabel)
 
 
