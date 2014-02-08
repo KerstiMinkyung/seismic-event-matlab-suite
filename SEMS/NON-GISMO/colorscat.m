@@ -17,36 +17,51 @@ function colorscat(X,Y,S,R,varargin)
 %  'cbarlab'    --> (1x2)-[char]   -[default: '']
 %  'cbar'       --> (1x1)-[logical]-[default: true]
 %  'time'       --> (1x1)-[logical]-[default: false]
+%  'range'      --> (1x2)
 %
 %OUTPUTS: none 
 
 nbins = 50;
-cbarlab = '';
 cbar = 1;
+cbarlab = '';
+cbardir = 'normal';
 time = 0;
+range(1) = max(R);
+range(2) = min(R);
 
 %%
 if (nargin > 4)
    v = varargin;
    nv = nargin-4;
    if ~rem(nv,2) == 0
-      error(['colorscat: Arguments after X,Y,S,R must appear in ',...
-             'property name/val pairs'])
+       error(['colorscat: Arguments after X,Y,S,R must appear in ',...
+           'property name/val pairs'])
    end
    for n = 1:2:nv-1
-      name = lower(v{n});
-      val = v{n+1};
-      switch name
-         case 'nbins' 
-            if isnumeric(val) && numel(val)==1
-               nbins = val;
-            end
-         case 'cbarlab' 
-            cbarlab = val;  
-         case 'cbar' 
-            cbar = val;     
-         case 'time' 
-            time = val;    
+       name = lower(v{n});
+       val = v{n+1};
+       switch name
+           case 'nbins'
+               if isnumeric(val) && numel(val)==1
+                   nbins = val;
+               end
+           case 'range'
+               if isnumeric(val) && numel(val)==2
+                   range = val;
+                   if range(1) < range(2)
+                       temp = range(1);
+                       range(1) = range(2);
+                       range(2) = temp;
+                   end
+               end
+           case 'cbar'
+               cbar = val;
+           case 'cbarlab'
+               cbarlab = val;
+           case 'cbardir'
+               cbardir = val;
+           case 'time'
+               time = val;
          otherwise
             error('colorscat: Property name not recognized')
       end
@@ -54,26 +69,28 @@ if (nargin > 4)
 end
 
 %%
-d = max(R) - min(R);
+R(R>range(1)) = range(1);
+R(R<range(2)) = range(2);
+d = range(1) - range(2);
 r = ceil((R-min(R))/d*nbins);
 r(r==0) = 1;
 c = jet(nbins);
 for n=1:nbins
     if n == 2, hold on, end
     ref = r == n;
-    scatter(X(ref),Y(ref),S(ref),'markerEdgeColor','k','markerFaceColor',c(n,:))
+    scatter(X(ref),Y(ref),S(ref),'markerEdgeColor',c(n,:),'markerFaceColor',c(n,:))
 end
 
 if cbar
-    rng = linspace(min(R),max(R),11);
+    crange = linspace(range(1),range(2),11);
     for n = 1:11
         if time
-            clab{n} = datestr(rng(n),'yyyy');
+            clab{n} = datestr(crange(n),'yyyy');
         else
-            clab{n} = num2str(rng(n));
+            clab{n} = num2str(crange(n));
         end
     end
-    colorbar('YTickLabel',clab)
+    colorbar('YTickLabel',clab,'YDir',cbardir)
     title(cbarlab)
 end
 
