@@ -1,5 +1,7 @@
 function plot_mcvco_voltages(S,varargin)
 
+t_rng(1) = datenum([2012 8 1 0 0 0]);
+t_rng(2) = ceil(now);
 M = [];
 for n = 1:nargin-1
     v = varargin{n};
@@ -64,10 +66,9 @@ if isempty(M)
     M = S;
     clear S
 end
-M = check_id_gain(M);
-
 subnets = fieldnames(M);
 C = 0;
+
 figure, hold on
 for n = 1:numel(subnets)
     SU = subnets{n};
@@ -79,14 +80,14 @@ for n = 1:numel(subnets)
             CH = channels{k};
             t = M.(SU).(ST).(CH).start;
             b = M.(SU).(ST).(CH).bvl;
+            keep = find(t>=t_rng(1) & t<=t_rng(2));
+            t = t(keep);
+            b = b(keep);
             C = C + 1;
-            stalab{C} = [ST,':',CH];
+            stalab{C} = [ST,':',CH,'  '];
             try
-                if C == 1
-                    colorscat(t,t*0-C,t*0+20,b,'range',[5,15],'cbar',1,'cbardir','reverse')
-                else
-                    colorscat(t,t*0-C,t*0+20,b,'range',[5,15],'cbar',0)
-                end
+            colorscat2(t,t*0-C,t*0+200,b,'range',[7, 14],'cbar',0)
+            %colorscat(t,t*0-C,t*0+50,b,'range',[5,15],'cbar',1,'cbardir','reverse')
             catch
             end
         end
@@ -96,6 +97,11 @@ end
 ylim([-C-1 0])
 set(gca,'YTick',[-C:-1])
 set(gca,'YTickLabel',stalab(end:-1:1))
-
-dynamicDateTicks
+xAxH = 30;
+figH = (C+1)*25 + xAxH;
+set(gcf,'Position',[1 1 1200 figH])
+set(gcf,'Color',[1 1 1])
+set(gca,'Position',[0.075 xAxH/figH 0.9 (figH-xAxH-5)/figH])
 grid on
+xlim(t_rng)
+datetick('x','keeplimits')
