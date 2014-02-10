@@ -14,7 +14,6 @@ for n = 1:numel(subnets)
                 cut_id = find(X.id ~= mode(X.id));
                 cut_gain = find(X.gain ~= mode(X.gain));
                 cut = unique([cut_id; cut_gain]);
-                X.sst(cut,:) = [];
                 X.bvl(cut) = [];
                 X.id(cut) = [];
                 X.gain(cut) = [];

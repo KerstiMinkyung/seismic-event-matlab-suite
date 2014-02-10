@@ -15,13 +15,14 @@ function varargout = decode_mcvco(wave,varargin)
 %INPUTS: wave    - a waveform object with a calibration pulse
 %        command - user defined: 'sst', 'data', 'resp', or 'bvl'
 %
-%OUTPUTS: sst  - cal pulse start/stop times (1x2 double)
-%         data - bit data from signal (1x25 boolean)
-%         gain - instrument gain (1x1 double)
-%           id - instrument ID (1x1 double)
-%         resp - instrument response data (1x1 waveform)
-%         bvl  - battery voltage levels (1x1 double)
-%         amp  - tone amplitude (from Goertzel Algorithm)
+%OUTPUTS: start - cal pulse start time (1x1 double)
+%         sst   - cal pulse start/stop times (1x2 double)
+%         data  - bit data from signal (1x25 boolean)
+%         gain  - instrument gain (1x1 double)
+%           id  - instrument ID (1x1 double)
+%         resp  - instrument response data (1x1 waveform)
+%         bvl   - battery voltage levels (1x1 double)
+%         amp   - tone amplitude (from Goertzel Algorithm)
 
 %% INITIALIZATIONS
 if ~isempty(wave)
@@ -106,6 +107,9 @@ end
 for n = 1:numel(varargin)
     if complete
         switch(lower(varargin{n}))
+            case{'start'}
+                varargout{n} = tv(tone_edge(1)-10);
+                
             case{'sst'}
                 varargout{n} = [tv(tone_edge(1)-10), tv(k+.25*Fs+10)];
                 
