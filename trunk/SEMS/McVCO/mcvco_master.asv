@@ -1,9 +1,7 @@
 function mcvco_master
 %% UPDATE McVCO VOLTAGE PLOTS
 
-fid = fopen('mcvco_config.txt');
-dir = fgetl(fid);
-cd dir
+fid = fopen(mcvco)
 load('Master.mat')
 M = update_mcvco_struct(M,dir);
 M = check_id_gain(M);

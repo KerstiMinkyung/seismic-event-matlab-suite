@@ -1,4 +1,4 @@
-function M = update_mcvco(M)
+function M = update_mcvco(M,dir)
 
 host = 'pubavo1.wr.usgs.gov';
 port = 16023;
@@ -17,7 +17,7 @@ for n = 1:numel(subnets)
             scnl = scnlobject(ST,CH,'AV',[]);
             X = update(X,ds,scnl);
             M.(SU).(ST).(CH) = X;
-            cd 'C:\AVO\McVCO_Test_Cycles'
+            cd dir
             save('Master.mat','M')
         end
     end
