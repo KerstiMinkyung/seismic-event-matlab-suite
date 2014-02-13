@@ -59,10 +59,10 @@ for m = 1:numel(stations)
         scatter(X.start(x),X.bvl(x))
         set(gcf,'Color',[1 1 1])
         x_txt = t_range(1)+(t_range(2)-t_range(1))*.4;
-        text(x_txt,13,[ST,':',CH],'fontsize',16) 
+        text(x_txt,15,[ST,':',CH],'fontsize',16) 
         grid on
         xlim(t_range)
-        ylim([7 14])
+        ylim([9 16])
         switch tag
             case {'-week','-month','-3month'}
                 datetick('x','dd/mm','keeplimits')
