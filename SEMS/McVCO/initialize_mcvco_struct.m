@@ -1,6 +1,6 @@
-function M = monitor_mcvco(M)
+function M = initialize_mcvco_struct(M,dir)
 
-cd 'C:\AVO\McVCO_Test_Cycles'
+cd dir
 
 host = 'pubavo1.wr.usgs.gov';
 port = 16023;
@@ -19,8 +19,8 @@ for n = 1:numel(subnets)
             scnl = scnlobject(ST,CH,'AV',[]);
             X = backfill(X,ds,scnl);
             M.(SU).(ST).(CH) = X;
-            cd 'C:\AVO\McVCO_Test_Cycles'
-            save('Master3.mat','M')
+            cd dir
+            save('Master.mat','M')
         end
     end
 end
@@ -28,7 +28,6 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function X = backfill(X,ds,scnl)
 X.start = [];
-X.sst = [];
 X.bvl = [];
 X.id = [];
 X.gain = [];
@@ -57,19 +56,18 @@ while t > datenum([2012 6 1 0 0 0])
     end
     
     try
-    [sst bvl id gain] = decode_mcvco(w,'sst','bvl','id','gain');
+    [start bvl id gain] = decode_mcvco(w,'start','bvl','id','gain');
     catch
         sst = NaN;
     end
     
     if ~isnan(sst(1))
-        X.start = [X.start; sst(1)];
-        X.sst = [X.sst; sst];
+        X.start = [X.start; start];
         X.bvl = [X.bvl; bvl];
         X.id = [X.id; id];
         X.gain = [X.gain; gain];
         if gapcnt > 7
-            X = forwardfill(X,sst(1),ds,scnl);
+            X = forwardfill(X,start,ds,scnl);
         end
         t = sst(1)-.5;
         gapcnt = .5;
@@ -97,14 +95,13 @@ while gapcnt < 7
     mnt = 1/24/60;
     w = get_w(ds,scnl,t-mnt,t+2*mnt);
     try
-    [sst bvl id gain] = decode_mcvco(w,'sst','bvl','id','gain');
+    [start bvl id gain] = decode_mcvco(w,'start','bvl','id','gain');
     catch
         sst = NaN;
     end
     if ~isnan(sst(1))
         gapcnt = 0;
-        X.start = [X.start; sst(1)];
-        X.sst = [X.sst; sst];
+        X.start = [X.start; start];
         X.bvl = [X.bvl; bvl];
         X.id = [X.id; id];
         X.gain = [X.gain; gain];
@@ -119,7 +116,6 @@ while gapcnt < 7
 end
 [A B] = sort(X.start,'descend');
 X.start = X.start(B);
-X.sst   = X.sst(B,:);
 X.bvl   = X.bvl(B);
 X.id    = X.id(B);
 X.gain  = X.gain(B);
