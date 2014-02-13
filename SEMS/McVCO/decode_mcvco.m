@@ -144,7 +144,7 @@ for n = 1:numel(varargin)
                     tone_edge(2)+18*Fs);
                 
             case{'bvl'}
-                varargout{n} = bin2dec(num2str(bin_data(14:25)))/100;
+                varargout{n} = bin2dec(num2str(bin_data(14:25)))/79;
                 
             case{'amp'}
                 varargout{n} = max_s;
