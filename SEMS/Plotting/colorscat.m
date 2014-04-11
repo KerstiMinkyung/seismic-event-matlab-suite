@@ -4,8 +4,8 @@ function colorscat(X,Y,S,R,varargin)
 %           range of the input array 'R'. The highst and lowest value in
 %           'R' define the two extremes of the colorscale used.
 %
-%USAGE: colorscat2(X,Y,S,R)
-%       colorscat2(X,Y,S,R,prop_name, prop_val)
+%USAGE: colorscat(X,Y,S,R)
+%       colorscat(X,Y,S,R,prop_name, prop_val)
 %
 %STATIC INPUTS: X - horizontal axis data
 %               Y - vertical axis data
@@ -21,13 +21,12 @@ function colorscat(X,Y,S,R,varargin)
 %
 %OUTPUTS: none 
 
-nbins = 50;
+nbins = 100;
 cbar = 1;
 cbarlab = '';
-cbardir = 'normal';
+cbardir = 'reverse';
 time = 0;
-range(1) = max(R);
-range(2) = min(R);
+range = [max(R) min(R)];
 
 %%
 if (nargin > 4)
@@ -52,6 +51,8 @@ if (nargin > 4)
                        temp = range(1);
                        range(1) = range(2);
                        range(2) = temp;
+                       R(R>range(1)) = range(1);
+                       R(R<range(2)) = range(2);
                    end
                end
            case 'cbar'
@@ -69,18 +70,15 @@ if (nargin > 4)
 end
 
 %%
-R(R>range(1)) = range(1);
-R(R<range(2)) = range(2);
-d = range(1) - range(2);
-r = ceil((R-min(R))/d*nbins);
-r(r==0) = 1;
-c = jet(nbins);
-cdata = c(r,:);
-for n=1:nbins
-    if n == 2, hold on, end
-    ref = r == n;
-    scatter(X(ref),Y(ref),S(ref),'markerEdgeColor',c(n,:),'markerFaceColor',c(n,:))
-end
+
+R = R - range(2);
+R = R/(range(1)-range(2));
+R = R*nbins;
+R = round(R);
+R(R==0)=1;
+C = flipud(jet(nbins));
+cdata = C(R,:);
+scatter(X,Y,S,cdata,'fill')
 
 if cbar
     crange = linspace(range(1),range(2),11);
