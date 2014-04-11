@@ -1,5 +1,6 @@
-function M = update_mcvco(M,dir)
+function M = update_mcvco_struct(M,dr)
 
+warning off
 host = 'pubavo1.wr.usgs.gov';
 port = 16023;
 ds = datasource('winston',host,16023);
@@ -17,11 +18,12 @@ for n = 1:numel(subnets)
             scnl = scnlobject(ST,CH,'AV',[]);
             X = update(X,ds,scnl);
             M.(SU).(ST).(CH) = X;
-            cd dir
+            cd(dr)
             save('Master.mat','M')
         end
     end
 end
+warning on
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function X = update(X,ds,scnl)
@@ -45,25 +47,44 @@ while t < now
         w = get_w(ds,scnl,t,t+.5);
     end
     pause(.01)
-    
-    try
-        [start bvl id gain] = decode_mcvco(w,'start','bvl','id','gain');
-    catch
-        start = NaN;
-    end
-    
-    if ~isnan(start)
-        gapcnt = 0;
-        X.start = [start; X.start];
-        X.bvl = [bvl; X.bvl];
-        X.id = [id; X.id];
-        X.gain = [gain; X.gain];
-        disp([datestr(t), ' - ', get(scnl,'station'), ':',...
-            get(scnl,'channel'),' - McVCO Signal Found'])
-        t = start;
+    if ~isempty(w)
+        t1 = get(w,'start');
+        t2 = get(w,'end');
     else
+        t1 = NaN;
+        t2 = NaN;
         disp([datestr(t), ' - ', get(scnl,'station'), ':',...
-            get(scnl,'channel'),' - McVCO Signal Not Found'])
+                get(scnl,'channel'),' - Waveform Not Found'])
+    end
+    start = t1;
+    id = NaN;
+    while start < t2 && (id ~= X.real_id)
+        try
+            [start, endd, bvl, id, gain] = ...
+                decode_mcvco(w,'start','end','bvl','id','gain');
+        catch
+            start = NaN;
+        end
+        
+        if ~isnan(start) && (id == X.real_id)
+            gapcnt = 0;
+            X.start = [start; X.start];
+            if X.real_bvl
+                X.bvl = [bvl; X.bvl];
+            else
+                X.bvl = [0; X.bvl];
+            end
+            X.id = [id; X.id];
+            X.gain = [gain; X.gain];
+            disp([datestr(t), ' - ', get(scnl,'station'), ':',...
+                get(scnl,'channel'),' - McVCO Signal Found'])
+            t = start;
+        elseif (start < t2) && (id ~= X.real_id)
+            w = extract(w,'TIME',endd,t2);
+        elseif isnan(start) || ~isnumeric(start)
+            disp([datestr(t), ' - ', get(scnl,'station'), ':',...
+                get(scnl,'channel'),' - McVCO Signal Not Found'])
+        end
     end
     
     if gapcnt < 7

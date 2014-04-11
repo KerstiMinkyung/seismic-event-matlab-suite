@@ -24,10 +24,9 @@ function colorscat2(X,Y,S,R,varargin)
 nbins = 100;
 cbar = 1;
 cbarlab = '';
-cbardir = 'normal';
+cbardir = 'reverse';
 time = 0;
-range(1) = max(R);
-range(2) = min(R);
+range = [max(R) min(R)];
 
 %%
 if (nargin > 4)
@@ -52,6 +51,8 @@ if (nargin > 4)
                        temp = range(1);
                        range(1) = range(2);
                        range(2) = temp;
+                       R(R>range(1)) = range(1);
+                       R(R<range(2)) = range(2);
                    end
                end
            case 'cbar'
@@ -69,9 +70,9 @@ if (nargin > 4)
 end
 
 %%
-R(R>range(1)) = range(1);
-R(R<range(2)) = range(2);
-R = R/range(1);
+
+R = R - range(2);
+R = R/(range(1)-range(2));
 R = R*nbins;
 R = round(R);
 R(R==0)=1;

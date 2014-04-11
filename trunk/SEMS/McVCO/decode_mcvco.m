@@ -25,6 +25,7 @@ function varargout = decode_mcvco(wave,varargin)
 %         amp   - tone amplitude (from Goertzel Algorithm)
 
 %% INITIALIZATIONS
+warning off
 if ~isempty(wave)
 v = get(wave,'data');
 tv = get(wave,'timevector');
@@ -38,7 +39,7 @@ tone_found = 0;         % Has tone been found?
 edge_found = 0;         % Has right edge of tone been found?
 n = 1;                  % Ref to left edge of window
 
-%% LOOK FOR RIGHT EDGE OF 21.25 Hz Tone
+%% LOOK FOR LEADING EDGE OF 21.25 Hz TONE USING A
 while (edge_found==0) && ((n+43*Fs) < v_l)
    chk_v = v(n:n+chk_dur-1);   % Window to check for tone
    s = gmax(chk_v,tone_freq);
@@ -78,11 +79,11 @@ if edge_found
          flag = 1;
          tone_edge(1) = floor(m+chk_dur/2);
          tone_edge(2) = floor(n+chk_dur/2);
-         k = tone_edge(2) + 18.75*Fs;
-         mv = mean(v(k-2*Fs : k-1*Fs));
+         k = round(tone_edge(2) + 18*Fs);
+         mv = mean(v(tone_edge(1):tone_edge(2)));
          for K = 1:25
-            bin_data(K) = v(k)>mv;
-            bin_ref(K) = k;
+            bin_data(K) = mean(v(k+K-.5:k+K)) > mv;
+            bin_ref(K) = k+K-.25;
             k = k + Fs;
          end
       else
@@ -108,10 +109,13 @@ for n = 1:numel(varargin)
     if complete
         switch(lower(varargin{n}))
             case{'start'}
-                varargout{n} = tv(tone_edge(1)-10);
+                varargout{n} = tv(tone_edge(1));
+                
+            case{'end'}
+                varargout{n} = tv(tone_edge(2))+ 18 + 25;
                 
             case{'sst'}
-                varargout{n} = [tv(tone_edge(1)-10), tv(k+.25*Fs+10)];
+                varargout{n} = tv(tone_edge)+ [0, 18 + 25];
                 
             case{'data'}
                 varargout{n} = {bin_data};
@@ -160,6 +164,7 @@ for n = 1:numel(varargin)
         varargout{n} = NaN;
     end
 end
+warning on
 
 %% Compute Goertzel Algorithm
 function s = gmax(chk_v,tone_freq)
