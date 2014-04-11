@@ -2,10 +2,10 @@ function mcvco_master
 %% UPDATE McVCO VOLTAGE PLOTS
 
 fid = fopen('mcvco_config.txt');
-dir = fgetl(fid);
-cd dir
+dr = fgetl(fid);
+cd(dr)
 load('Master.mat')
-M = update_mcvco_struct(M,dir);
+%M = update_mcvco_struct(M,dr);
 M = check_id_gain(M);
 
 %%
@@ -16,39 +16,40 @@ for n = 1:numel(subnets)
     
     t_range = [t-7 t];
     tag = '-week';
-    netplot(M,SN,t_range,tag)
-    chanplot(M,SN,t_range,tag)
+    netplot(M,SN,t_range,tag,dr)
+    chanplot(M,SN,t_range,tag,dr)
     
     t_range = [t-30 t];
     tag = '-month';
-    netplot(M,SN,t_range,tag)
-    chanplot(M,SN,t_range,tag)
+    netplot(M,SN,t_range,tag,dr)
+    chanplot(M,SN,t_range,tag,dr)
     
     t_range = [t-90 t];
     tag = '-3month';
-    netplot(M,SN,t_range,tag)
-    chanplot(M,SN,t_range,tag)
+    netplot(M,SN,t_range,tag,dr)
+    chanplot(M,SN,t_range,tag,dr)
     
     t_range = [t-365 t];
     tag = '-year';
-    netplot(M,SN,t_range,tag)
-    chanplot(M,SN,t_range,tag)
+    netplot(M,SN,t_range,tag,dr)
+    chanplot(M,SN,t_range,tag,dr)
     
     t_range = [datenum([2012 8 1 0 0 0]) t];
     tag = '-all';
-    netplot(M,SN,t_range,tag)
-    chanplot(M,SN,t_range,tag)
+    netplot(M,SN,t_range,tag,dr)
+    chanplot(M,SN,t_range,tag,dr)
 end
 
-function netplot(M,SN,t_range,tag)
-cd([dir,'\network_voltage_plots'])
+function netplot(M,SN,t_range,tag,dr)
+cd([dr,'\network_voltage_plots'])
 plot_mcvco_voltages(M,SN,t_range)
+set(gcf,'visible','off')
 export_fig([SN,tag],'-png')
 pause(.1)
 close all
 
-function chanplot(M,SN,t_range,tag)
-cd([dir,'\channel_voltage_plots'])
+function chanplot(M,SN,t_range,tag,dr)
+cd([dr,'\channel_voltage_plots'])
 stations = fieldnames(M.(SN));
 for m = 1:numel(stations)
     ST = stations{m};
@@ -58,6 +59,7 @@ for m = 1:numel(stations)
         X = M.(SN).(ST).(CH);
         x = find(X.start > t_range(1) & X.start < t_range(2));
         figure
+        set(gcf,'visible','off')
         scatter(X.start(x),X.bvl(x))
         set(gcf,'Color',[1 1 1])
         x_txt = t_range(1)+(t_range(2)-t_range(1))*.4;

@@ -10,8 +10,8 @@ function sems_path
 % $Date$
 % $Revision$
 
-addpath(genpath('C:\AVO\SEMS'));
-addpath(genpath('C:\AVO\GISMO'));
+addpath(genpath('C:\AVO\SEMS_SVN'));
+addpath(genpath('C:\AVO\GISMO_SVN'));
 addpath('C:\AVO\Deep LP');
 addpath(genpath('C:\AVO\MatLAB Tools\dynamicDateTicks'));
 addpath(genpath('C:\AVO\MatLAB Tools\fastsmooth'));

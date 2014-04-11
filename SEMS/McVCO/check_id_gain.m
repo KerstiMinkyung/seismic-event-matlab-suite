@@ -11,8 +11,8 @@ for n = 1:numel(subnets)
             CH = channels{k};
             X = M.(SU).(ST).(CH);
             if ~isempty(X.start)
-                cut_id = find(X.id ~= mode(X.id));
-                cut_gain = find(X.gain ~= mode(X.gain));
+                cut_id = find(X.id ~= X.real_id);
+                cut_gain = find(X.gain ~= X.real_gain);
                 cut = unique([cut_id; cut_gain]);
                 X.bvl(cut) = [];
                 X.id(cut) = [];
