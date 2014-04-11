@@ -1,4 +1,4 @@
-function colorscat2(X,Y,S,R,varargin)
+function colorscat(X,Y,S,R,varargin)
 
 %COLORSCAT: Plots a scatter plot with marker color proportional to the full
 %           range of the input array 'R'. The highst and lowest value in
