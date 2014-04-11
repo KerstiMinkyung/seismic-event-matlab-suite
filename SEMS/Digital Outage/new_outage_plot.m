@@ -1,4 +1,4 @@
-function new_outage_plot(D,T,varargin)
+function new_outage_plot(D,T)
 
 subnets = fieldnames(D);
 grid = [];
@@ -11,12 +11,7 @@ for n = 1:numel(subnets)
         ST = stations{m};
         X = D.(SU).(ST).BHZ;
         grid = [grid, X.percent];
-        names{end + 1} = [ST,':BHZ'];
+        names{end + 1} = [SU,':',ST];
     end
 end
-imagesc(T,1:size(grid,2),grid')
-set(gca,'ytick',1:numel(names))
-set(gca,'yticklab',names)
-colorbar
-dynamicDateTicks
-set(xlim([datenum([2012 8 15 0 0 0]), now]))
+imagesc(T,1:size(grid,2),grid)

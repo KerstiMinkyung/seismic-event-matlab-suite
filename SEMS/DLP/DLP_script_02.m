@@ -285,9 +285,11 @@ scatter(zeros(size(a)), a, 4.^(.5+a),'k')
 
 %%
 close all
-%for kk = 1:37
-    %vn = volc_loc.name{kk};
-    vn = 'ARC';
+for kk = 1:5
+    vn = volc_loc.name{kk};
+    vlat = volc_loc.lat{kk};
+    vlon = volc_loc.lon{kk};
+    %vn = 'ARC';
     min_pf = 0;
     max_pf = 10;
     
@@ -296,16 +298,21 @@ close all
     ax1 = axes('Position',[.08 .51 .42 .42]);
     hold on
     switch lower(vn)
-        case {'redoubt','spurr'}
-            subIND = find(strcmpi(EM.volc,vn));
-            subEM = substruct(EM,subIND,1);
-            contour(ax1,map.lon,map.lat,map.elev,'LineColor','k')
         case {'arc'}
             subEM = substruct(EM,find(EM.mag<=3.5),1);
-            for n=1:numel(AK_coast), plot(AK_coast(n).lon,AK_coast(n).lat,'k'), end
+            for n=1:numel(AK_coast)
+                plot(AK_coast(n).lon,AK_coast(n).lat,'k')
+            end
         otherwise
             subIND = find(strcmpi(EM.volc,vn));
             subEM = substruct(EM,subIND,1);
+            dist = lldistkm(LAT,LON,vlat,vlon);
+            lat_deg = 25/110.54;
+            lon_deg = 25/(111.320*cosd(vlat));
+            map_lat = [vlat-lat_deg vlat+lat_deg];
+            map_lon = [vlat-lon_deg vlat+lon_deg];
+            dem = getdem(map_lat, map_lon);
+            contour(flipud(dem))
     end
     subPF = subEM.pfmed;
     subPF(subPF>max_pf) = max_pf;
@@ -317,19 +324,7 @@ close all
     ylabel('Northing (Degrees)')
     
     ax2 = axes('Position',[.08 .06 .42 .42]);
-    switch lower(vn)
-        case {'redoubt'}
-            rlat = volc_loc.lat(25);
-            [v r] = min(abs(map.lat - rlat));
-            plot(map.lon,map.elev(r,:)./1000,'k')
-            hold on
-        case {'spurr'}
-            rlat = volc_loc.lat(29);
-            [v r] = min(abs(map.lat - rlat));
-            plot(map.lon,map.elev(r,:)./1000,'k')
-            hold on
-        otherwise
-    end
+    
     colorscat(subEM.lon, -subEM.depth, 4.^(subEM.mag+.5), subPF, 'cbar', 0)
     grid on
     ylim([-50 10])
@@ -397,7 +392,7 @@ close all
     set(fh,'PaperSize',[10 10],'PaperPosition',[.25 .25 9.5 9.5])
     
     print(fh,'-dpdf','-r300',[vn,'_Summary.pdf'])
-%end
+end
 
 %%
 cd('C:\AVO\Deep LP\DLP_corr')
@@ -448,7 +443,7 @@ end
 
 %%
 cd('C:\AVO\Deep LP\DLP_corr')
-load('_Master.mat')
+load('Family_Master.mat')
 f = fieldnames(FM);
 % Number of station structures
 for n = 1:numel(f)
@@ -573,11 +568,11 @@ for n = 1:37
 end
 scatter3(xEM.lon, xEM.lat, -xEM.depth, 4.^(xEM.mag+.5),...
         'markerEdgeColor',[.6 .6 .6])
-% for n = 1:150
-%     sEM = substruct(EM,FAM.evid{n},1,'evid');
-%     scatter3(sEM.lon, sEM.lat, -sEM.depth, 4.^(sEM.mag+.5),...
-%         'markerFaceColor',[rand rand rand], 'markerEdgeColor',[0 0 0])
-% end
+for n = 1:150
+    sEM = substruct(EM,FAM.evid{n},1,'evid');
+    scatter3(sEM.lon, sEM.lat, -sEM.depth, 4.^(sEM.mag+.5),...
+        'markerFaceColor',[rand rand rand], 'markerEdgeColor',[0 0 0])
+end
 scatter3(volc_loc.lon,volc_loc.lat,zeros(size(volc_loc.lat)),...
     '^','markerFaceColor','r','markerEdgeColor','k')
 xlim([-185 -150])
@@ -586,9 +581,12 @@ zlim([-50 10])
 set(ax1,'CameraPosition',[5.371, -31.876 105.706])
 set(ax1,'CameraTarget',[-167.5 56.5 -20])
 set(ax1,'CameraViewAngle',8.638)
+
+% 
 ax2 = axes('Position',[.9 .5 .08 .4]);
 a = .5:.5:3.5; 
 scatter(zeros(size(a)), a, 4.^(.5+a),'k')
+clear a ax1 ax2 fh n xEM
 
 %% 3D SCATTER PLOT OF DEEP MULTIPLET EVENTS (ANIMATION)
 fh = figure;
@@ -623,6 +621,7 @@ end
 ax2 = axes('Position',[.9 .3 .04 .2]);
 a = .5:.5:3.5; 
 scatter(zeros(size(a)), a, 4.^(.5+a),'k')
+clear a ax1 ax2 fh n sEM xEM
 
 %%
 set(gcf,'PaperSize',[12 11],'PaperPosition',[ -.5 -.5 12 12])
@@ -737,6 +736,7 @@ ylim([50 63])
 ax2 = axes('Position',[.9 .5 .08 .4]);
 a = .5:.5:3.5; 
 scatter(zeros(size(a)), a, 4.^(.5+a),'k')
+clear a ax1 ax2 fh n sEM xEM
 
 %% 3D SCATTER PLOT OF DEEP MULTIPLET EVENTS COLORED BY MED PF
 fh = figure;
@@ -750,8 +750,7 @@ for n = 1:37
     plot3([1,1]*volc_loc.lon(n),[1,1]*volc_loc.lat(n),[0,-15],'r')
 end
 
-%sEM = substruct(EM,FAM.all_evid,1,'evid');
-sEM = substruct(EM_aku,find(EM_aku.fam_id>0),1);
+sEM = substruct(EM,FAM.all_evid,1,'evid');
 
 X = sEM.pfmed;
 X(X>10) = 10;
@@ -783,6 +782,7 @@ set(ax1,'CameraViewAngle',8.638)
 ax2 = axes('Position',[.9 .15 .03 .3]);
 a = .5:.5:3.5; 
 scatter(zeros(size(a)), a, 4.^(.5+a),'k')
+clear X a ax1 ax2 ch fh max_pf min_pf n sEM tick ticklab
 
 %%
 EM.fam_id = zeros(3201,1);
@@ -851,3 +851,5 @@ s = [5, 10, 20, 50, 100];
 %scatter(zeros(size(a)), a, 8.^(.5+a),'k')
 scatter(zeros(size(a)), a, 5*s,'k')
 set(gca,'xTickLabel',{})
+
+clear a ax1 ax2 ch depth fh lat lon mag max_pf min_pf n num pf s subEM tick ticklab
