@@ -17,14 +17,14 @@ for n = 1:numel(subnets)
             scnl = scnlobject(ST,CH,'AV',[]);
             X = update(X,ds,scnl);
             M.(SU).(ST).(CH) = X;
-            cd dir
-            save('Master.mat','M')
+            save([dir,'\Master.mat'],'M')
         end
     end
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function X = update(X,ds,scnl)
+
 if ~isempty(X.start)
 lastfind = max(X.start);
 else

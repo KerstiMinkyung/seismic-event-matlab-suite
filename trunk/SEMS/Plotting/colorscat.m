@@ -76,7 +76,8 @@ R = R/(range(1)-range(2));
 R = R*nbins;
 R = round(R);
 R(R==0)=1;
-C = flipud(jet(nbins));
+%C = flipud(jet(nbins));
+C = jet(nbins);
 cdata = C(R,:);
 scatter(X,Y,S,cdata,'fill')
 
