@@ -12,7 +12,7 @@ function sems_path
 
 addpath(genpath('C:\AVO\SEMS_SVN'));
 addpath(genpath('C:\AVO\GISMO_SVN'));
-addpath('C:\AVO\Deep LP');
+addpath('C:\AVO\DeepQuake');
 addpath(genpath('C:\AVO\MatLAB Tools\dynamicDateTicks'));
 addpath(genpath('C:\AVO\MatLAB Tools\fastsmooth'));
 addpath(genpath('C:\AVO\MatLAB Tools\nansuite'));
@@ -25,3 +25,4 @@ javaaddpath({
    'C:\Winston1.1\lib\winston-bin.jar'});
 
 format compact
+cd('C:\AVO\SEMS_SVN\SEMS')

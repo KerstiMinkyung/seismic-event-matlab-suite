@@ -78,16 +78,21 @@ for n = 1:numel(subnets)
         channels = fieldnames(M.(SU).(ST));
         for k = 1:numel(channels)
             CH = channels{k};
-            t = M.(SU).(ST).(CH).start;
-            b = M.(SU).(ST).(CH).bvl;
+            X = M.(SU).(ST).(CH);
+            t = X.start;
+            b = X.bvl;
             keep = find(t>=t_rng(1) & t<=t_rng(2));
             t = t(keep);
             b = b(keep);
             C = C + 1;
             stalab{C} = [ST,':',CH,'  '];
             try
-            colorscat2(t,t*0-C,t*0+200,b,'range',[7, 14],'cbar',0)
-            %colorscat(t,t*0-C,t*0+50,b,'range',[5,15],'cbar',1,'cbardir','reverse')
+                if X.real_bvl
+                    colorscat(t,t*0-C,t*0+200,b,'range',[7, 15],'cbar',0)
+                else
+                    scatter(t,t*0-C,t*0+200,...
+                 'markerFaceColor',[.7 .7 .7],'markerEdgeColor',[.7 .7 .7])
+                end
             catch
             end
         end

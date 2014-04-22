@@ -93,18 +93,32 @@ switch xltype
 end
 w = demean(w);
 w = w./mean(abs(w)); % scale waveforms
-fh = figure;
-ax = axes;
+
+if isempty(findobj('type','figure'))
+    fh = figure;
+    ax = axes;
+elseif isempty(findobj('type','axes'))
+    fh = gcf;
+    ax = axes;
+else
+    fh = gcf;
+    ax = gca;    
+end
+
 nw = numel(w);
 
 %%
 warning off
 for n = 1:nw
     cl(n) = -n*sp;   % trace center line
+    sta = get(w(n),'station');
+    cha = get(w(n),'channel');
     tv = get(w(n),'timevector');
     start = get(w(n),'start');
     d2s = 24*60*60;
     dat = get(w(n),'data');
+    pt = get(w(n),'p_datenum');
+    st = get(w(n),'s_datenum');
     if fill~=0
         area((tv-start)*d2s,dat+cl(n),cl(n),'LineWidth',1)
         if n==1, hold on, end
@@ -113,18 +127,17 @@ for n = 1:nw
     else
         plot((tv-start)*d2s,dat+cl(n),'Color',[0 0 0])
         if n==1, hold on, end
-        try scatter((get(w(n),'p_datenum')-start)*24*60*60,cl(n),'*','r'), catch, end
-        try scatter((get(w(n),'s_datenum')-start)*24*60*60,cl(n),'*','g'), catch, end
+        try scatter((pt-start)*24*60*60,cl(n),'*','r'), catch, end
+        try scatter((st-start)*24*60*60,cl(n),'*','g'), catch, end
     end
     ypos(n)=cl(n);
     switch ylabtype
         case {'sta:chan [time]'}
-            ylab{n}=[get(w(n),'station'),':',get(w(n),'channel'),...
-                ' [',datestr(start),']'];
+            ylab{n}=[sta,':',cha,' [',datestr(start),']'];
         case 'time'
             ylab{n}=datestr(start);
         case {'station','sta'}
-            ylab{n}=get(w(n),'station');
+            ylab{n}=sta;
         case {'station-channel','station:channel','station/channel',...
                 'sta-chan','sta:chan','sta/chan','stachan'}
             ylab{n}=[sta,':',cha];

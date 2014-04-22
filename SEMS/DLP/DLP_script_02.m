@@ -1,9 +1,9 @@
 
 %% DEEP LP PROJECT SCRIPTS
-
 % 'md' - Path to folders containing miniSEED data (.mseed)
 % 'pd' - Path to STP phase files (.pha)
 % 'wd' - Path to waveform object file
+
 md = 'C:\AVO\Deep LP\DLP_mseed';
 pd = 'C:\AVO\Deep LP\DLP_phase';
 wd = 'C:\AVO\Deep LP\DLP_wfa';
@@ -14,7 +14,11 @@ MD(1:2) = []; % Get rid of '.' and '..'
 PD = dir(pd);
 PD(1:2) = []; % Get rid of '.' and '..'
 
-%%
+%% INITIALIZE EVENT STRUCTURE - LOOP OVER ALL MINISEED FILES IN DIRECTORY & 
+%  MATCH THEM TO CORRESPONDING PHASE FILES. SAVE EVENT/LOCATION FIELDS IN
+%  EVENT MASTER (EM) STRUCTURE. CONVERT MINISEED FILES TO WAVEFORM OBJECTS
+%  AND STORE ALL EVENT & STATION DATA INSIDE EACH WAVEFORM OBJECT.
+
 EM = [];
 for n = 1:numel(MD)
     clc, disp(num2str(n)), pause(.01)
@@ -82,36 +86,15 @@ for n = 1:numel(MD)
                 cd(wd)
                 save([id,'.mat'],'W')
                 cd('C:\AVO\Deep LP')
-                save('EM.mat','EM')
+                save('Master.mat','EM')
             end
         end
     end
 end
 
-%%
-cd('C:\AVO\Deep LP\DLP_wfa')
-EM = [];
-for n = 1:numel(WD)
-    try
-        load(WD(n).name);
-        % clc
-        % disp(['[',num2str(n),'] - ',num2str(numel(W)),' waveforms'])
-        % pause(.01)
-        EM.evid(n) = get(W(1),'evid');
-        EM.ev_datenum(n) = get(W(1),'ev_datenum');
-        EM.type{n} = get(W(1),'type');
-        EM.lat(n) = get(W(1),'ev_lat');
-        EM.lon(n) = get(W(1),'ev_lon');
-        EM.depth(n) = get(W(1),'ev_depth');
-        EM.mag(n) = get(W(1),'ev_mag');
-        EM.magtype{n} = get(W(1),'ev_magtype');
-        EM.numw(n) = numel(W);
-    catch
-        WD(n) = [];
-    end
-end
-
-%% LOAD EVERY EVENT & COMPUTE MEDIAN & STACKED FREQUENCY
+%% LOAD EVERY EVENT AND COMPUTE MEDIAN, & STACKED FREQUENCY
+%**NEED TO REMOVE DUPLICATE WAVEFORMS! THIS HASN'T BEEN CODED, IT WAS DONE
+%**AD HOC LATER IN THE PROJECT
 warning off
 cd('C:\AVO\Deep LP\DLP_wfa')
 N = numel(EM.evid);
@@ -146,7 +129,7 @@ for n = 1:N %numel(EM.evid)
 end
 
 %% SCATTER PLOT OF MEDIAN VS. STACKED FREQUENCY
-%% RANDOM VARIATION ADDED FOR BETTER VIEW OF MARKER DENSITY
+%  RANDOM VARIATION ADDED FOR BETTER VIEW OF MARKER DENSITY
 F1 = EM.pfmed;
 F2 = EM.pfstk;
 r1 = .02*rand(size(F1))-.01;
@@ -157,7 +140,7 @@ ylabel('Stacked Peak Frequency')
 xlabel('Median Peak Frequency')
 
 %% SORT ALL EVENT WAVEFORMS INTO A STATION STRUCTURE 'S'
-%% ONLY VERTICAL COMPONENT CHANNELS WITH P-ARRIVALS ARE CONSIDERED
+%  ONLY VERTICAL COMPONENT CHANNELS WITH P-ARRIVALS ARE CONSIDERED
 warning off
 cd('C:\AVO\Deep LP\DLP_wfa')
 N = numel(EM.evid);
@@ -175,7 +158,7 @@ for n = 1:N %numel(EM.evid)
 end
 
 %% CROSS-CORRELATE ALL WAVEFORMS IN EACH FIELD OF 'S'
-%% CLUSTER WAVEFORMS INTO FAMILIES
+%  CLUSTER WAVEFORMS INTO FAMILIES
 f = fieldnames(S);
 FM = [];
 for n = 1:numel(f)
@@ -212,11 +195,8 @@ for n = 1:numel(f)
     end
 end
 
-%% LOAD CROSS-CORRELATION STRUCTURES & REMOVE DUPLICATE WAVEFORMS BEFORE 
-%  RE-COMPUTING CORRELATION
-
 %%  LOAD ALL WAVEFORMS FROM THE LARGEST FAMILY FOUND AT STATION 'n'
-%%  PLOT THE WAVEFORMS & PICKS, AS WELL AS MAP SCATTER PLOT
+%   PLOT THE WAVEFORMS & PICKS, AS WELL AS MAP SCATTER PLOT
 %   EM - Event Master Structure
 %   FM - Family Master Structure
 f = fieldnames(FM);
@@ -234,29 +214,16 @@ colorscat(EM.lon(B), EM.lat(B), 5.^(EM.mag(B)+.5), EM.pfmed(B))
 %%  REMOVE EVENTS FROM EM WHICH ARE OVER 25km FROM A VOLCANIC CENTER
 %   EM       - Event Master Structure
 %   volc_loc - Volcanic Center Location Structure
-LAT = EM.lat;
-LON = EM.lon;
 for n = 1:length(volc_loc.lat)
-    vlat = volc_loc.lat(n).*ones(size(LAT));
-    vlon = volc_loc.lon(n).*ones(size(LON));
+    vlat = volc_loc.lat(n).*ones(size(EM.lat));
+    vlon = volc_loc.lon(n).*ones(size(EM.lon));
     dist(n,:) = lldistkm(LAT,LON,vlat,vlon);
 end
 [EM.km2volc, volcnumber] = min(dist);
 EM.volc = volc_loc.name(volcnumber);
-%R = find(mindist <= 25);
-%EM = substruct(EM,R, 1);
-clear LAT LON vlat vlon dist mindist R
-
-%% PLOT DEM MAP OF COOK INLET WITH EVENTS SCATTERED ABOVE
-%% (STILL NEED TO FIX COLOR BAR)
-fh = figure;
-ax = axes;
-imagesc(map.lon,map.lat,map.elev)
-set(fh,'Colormap',mycmap)
-set(ax,'YDir','Normal')
-axis image
-hold on
-colorscat(EM.lon, EM.lat, 4.^(EM.mag+.5), EM.depth)
+R = find(mindist <= 25);
+EM = substruct(EM,R, 1);
+clear vlat vlon dist mindist R
 
 %% 3-DIMENSIONAL SCATTER PLOT OF EVENTS BELOW ALASKA COASTLINE
 fh = figure;
@@ -282,117 +249,6 @@ set(ax1,'CameraViewAngle',8.638)
 ax2 = axes('Position',[.9 .5 .08 .4]);
 a = .5:.5:3.5; 
 scatter(zeros(size(a)), a, 4.^(.5+a),'k')
-
-%%
-close all
-for kk = 1:5
-    vn = volc_loc.name{kk};
-    vlat = volc_loc.lat{kk};
-    vlon = volc_loc.lon{kk};
-    %vn = 'ARC';
-    min_pf = 0;
-    max_pf = 10;
-    
-    fh = figure;
-    
-    ax1 = axes('Position',[.08 .51 .42 .42]);
-    hold on
-    switch lower(vn)
-        case {'arc'}
-            subEM = substruct(EM,find(EM.mag<=3.5),1);
-            for n=1:numel(AK_coast)
-                plot(AK_coast(n).lon,AK_coast(n).lat,'k')
-            end
-        otherwise
-            subIND = find(strcmpi(EM.volc,vn));
-            subEM = substruct(EM,subIND,1);
-            dist = lldistkm(LAT,LON,vlat,vlon);
-            lat_deg = 25/110.54;
-            lon_deg = 25/(111.320*cosd(vlat));
-            map_lat = [vlat-lat_deg vlat+lat_deg];
-            map_lon = [vlat-lon_deg vlat+lon_deg];
-            dem = getdem(map_lat, map_lon);
-            contour(flipud(dem))
-    end
-    subPF = subEM.pfmed;
-    subPF(subPF>max_pf) = max_pf;
-    colorscat(subEM.lon, subEM.lat, 4.^(subEM.mag+.5), subPF, 'cbar', 0)
-    grid on
-    set(ax1,'XTickLab',[],...
-        'XLim',[min(subEM.lon)-.02, max(subEM.lon)+.02],...
-        'YLim',[min(subEM.lat)-.02, max(subEM.lat)+.02]);
-    ylabel('Northing (Degrees)')
-    
-    ax2 = axes('Position',[.08 .06 .42 .42]);
-    
-    colorscat(subEM.lon, -subEM.depth, 4.^(subEM.mag+.5), subPF, 'cbar', 0)
-    grid on
-    ylim([-50 10])
-    xlabel('Easting (Degrees)')
-    ylabel('Depth (km)')
-    linkaxes([ax1, ax2],'x')
-    
-    Nx = 30;
-    
-    ax3a = axes('Position',[.55 .53 .3 .18]);
-    x1 = min(subEM.depth);
-    x2 = max(subEM.depth);
-    dx = (x2-x1)/Nx;
-    colorhist(subEM.depth,subPF,Nx,64)
-    tick = x1+dx:2*dx:x2;
-    for n = 1:numel(tick), ticklb{n} = sprintf('%0.0f',tick(n)); end
-    set(ax3a,'XTick',tick);
-    set(ax3a,'XTickLab',ticklb);
-    xlabel('Depth (km)')
-    xlim([x1, x2])
-    grid on
-    
-    ax3b = axes('Position',[.55 .75 .3 .18]);
-    x1 = min(subEM.mag);
-    x2 = max(subEM.mag);
-    dx = (x2-x1)/Nx;
-    colorhist(subEM.mag,subPF,Nx,64)
-    tick = x1+dx:4*dx:x2;
-    for n = 1:numel(tick), ticklb{n} = sprintf('%0.1f',tick(n)); end
-    set(ax3b,'XTick',tick);
-    set(ax3b,'XTickLab',ticklb);
-    xlabel('Magnitude')
-    xlim([x1, x2])
-    grid on
-    
-    ax3c = axes('Position',[.55 .95 .3 .035]);
-    scatter(tick,zeros(size(tick)),4.^(tick+.5),'k')
-    set(ax3c,'Visible','off')
-    ylim([0, 1])
-    xlim([x1, x2])
-    
-    ax4 = axes('Position',[.53 .06 .42 .42]);
-    colorscat(subEM.datenum, -subEM.depth, 4.^(subEM.mag+.5), subPF, 'cbar', 0)
-    grid on
-    set(ax4,'YTickLab',[])
-    dynamicDateTicks
-    ylim([-50 0])
-    xlabel('Time (years)')
-    linkaxes([ax2, ax4],'y')
-    
-    ch = colorbar;
-    set(ch,'colormap','Jet')
-    tick = min_pf:max_pf;
-    for n = 1:numel(tick)
-        ticklab{n} = [num2str(tick(n)),' Hz'];
-    end
-    tick = (tick-min_pf)./max_pf;
-    set(ch,'Position',[.87 .51 .03 .42],...
-        'YTickMode','manual','YTickLabelMode','manual',...
-        'YTick',tick,'YTickLabel',ticklab)
-    ax5 = axes('Position',[.15 .95 .45 .035],'Visible','off');
-    text(0,0,[upper(vn),' SUMMARY'],'FontSize',18)
-    
-    warning off
-    set(fh,'PaperSize',[10 10],'PaperPosition',[.25 .25 9.5 9.5])
-    
-    print(fh,'-dpdf','-r300',[vn,'_Summary.pdf'])
-end
 
 %%
 cd('C:\AVO\Deep LP\DLP_corr')

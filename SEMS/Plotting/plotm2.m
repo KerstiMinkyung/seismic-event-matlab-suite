@@ -6,8 +6,18 @@ function plotm2(w,varargin)
 w = demean(w);
 %mscale = where I left off
 w = w./mean(abs(w)); % scale waveforms
-fh = figure;
-ax = axes;
+
+if isempty(findobj('type','figure'))
+    fh = figure;
+    ax = axes;
+elseif isempty(findobj('type','axes'))
+    fh = gcf;
+    ax = axes;
+else
+    fh = gcf;
+    ax = gca;    
+end
+
 nw = numel(w);
 sp = 5;          % trace spacing
 fill = 0;        % don't area fill bottom half of waveform
