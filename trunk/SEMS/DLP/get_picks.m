@@ -12,13 +12,11 @@ if (nargin-1) ~= nargout
                        'the number of outputs'])
 end
 
-if nargin > 1
-    for n = 1:nargin-1
-        if strcmpi(varargin{n},'p')
-            pout = n;
-        elseif strcmpi(varargin{n},'s')
-            sout = n;
-        end
+for n = 1:nargin-1
+    if strcmpi(varargin{n},'p')
+        pout = n;
+    elseif strcmpi(varargin{n},'s')
+        sout = n;
     end
 end
 

@@ -14,21 +14,31 @@ end
 
 fields = fieldnames(S);
 
-if nargin == 4
-    field = varargin{1};
-    if ~isfield(S,field)
-        error('SUBSTRUCT: 4th input must be a valid field name')
-    end
-    [val r1 r2] = intersect(S.(field),R,'stable');
-    R = r1;
-end
+% if nargin == 4
+%     field = varargin{1};
+%     if ~isfield(S,field)
+%         error('SUBSTRUCT: 4th input must be a valid field name')
+%     end
+%     [val r1 r2] = intersect(S.(field),R,'stable');
+%     R = r1;
+% end
 
 for n = 1:numel(fields)
-    s = S.(fields{n}); 
-    if D > 0
-       S.(fields{n}) = s(R);
+    s = S.(fields{n});
+    [s1, s2] = size(s);
+    if s1 ~= s2
+        if D > 0
+            S.(fields{n}) = s(R);
+        else
+            s(R) = [];
+            S.(fields{n}) = s;
+        end
     else
-       s(R) = [];
-       S.(fields{n}) = s;
+        if D > 0
+            S.(fields{n}) = s(R,R);
+        else
+            s(R,R) = [];
+            S.(fields{n}) = s;
+        end
     end
 end
