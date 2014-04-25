@@ -1,7 +1,5 @@
 function M = getdem(lat, lon)
 
-ts = 1812; % DEM tile size
-
 if lat(1) > lat(2)
     tmp = lat(1);
     lat(1) = lat(2);
@@ -12,15 +10,18 @@ if lon(1) > lon(2)
     lon(1) = lon(2);
     lon(2) = tmp;
 end
-lat = lat+1;
-dir = 'C:\Gridfloat Maps';
-flat = floor(lat);
-flon = floor(lon);
-row = [];
-M = [];
 
-for n = flat(1):flat(2)
-    for m = flon(1):flon(2)
+dir = 'C:\Gridfloat Maps';
+flat = floor(lat(1)+1):floor(lat(2)+1);
+flon = floor(lon(1)):floor(lon(2));
+row = [];
+Mlon = [];
+Mlat = [];
+M = [];
+rowdone = 0;
+
+for n = flat
+    for m = flon
         if n >= 0
             ff = ['n',num2str(n)];
         else
@@ -31,21 +32,27 @@ for n = flat(1):flat(2)
         else
             ff = [ff,'e',num2str(m)];
         end
-        F = readgridfloat(dir,ff);
+        [F, sublat, sublon] = readgridfloat(dir,ff);
+        %sublat = sublat-1;
         if isempty(F)
-            F = NaN*ones(ts);
+            F = zeros(1812);
         end
-        row = [row F];
+        row = [row, F];
+        if ~rowdone
+            Mlon = [Mlon, sublon];
+        end
     end
+    rowdone = 1;
+    Mlat = [Mlat, sublat];
     M = [row; M];
     row = [];
 end
 
-LAT(1) = floor((lat(1) - flat(1))*ts)+1;
-LAT(2) = ceil((lat(2) - lat(1))*ts) + LAT(1);
-LON(1) = floor((lon(1) - flon(1))*ts)+1;
-LON(2) = ceil((lon(2) - lon(1))*ts) + LON(1);
-
+k = 10000;
+[Mlat, latindx] = unique(round(Mlat*k));
+[Mlon, lonindx] = unique(round(Mlon*k));
+Mlat = Mlat/k; Mlon = Mlon/k;
+M = M(latindx, lonindx);
 M = flipud(M);
-M = M(LAT(1):LAT(2),LON(1):LON(2));
-M = flipud(M);
+M(Mlat < lat(1) | Mlat > lat(2),:) = [];
+M(:,Mlon < lon(1) | Mlon > lon(2)) = [];
