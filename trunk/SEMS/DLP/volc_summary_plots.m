@@ -11,14 +11,12 @@ for kk = 1:numel(volc_loc.name)
     %% Extract subset of events from volcanic center that are located at a
     %  maximum distance 'd' from the volcanic center
     d = 25;
-    lat_deg = d/110.54;
-    lon_deg = d/(111.320*cosd(vlat));
-    sub_lat = [vlat-lat_deg vlat+lat_deg];
-    sub_lon = [vlon-lon_deg vlon+lon_deg];
+    [sub_lat, sub_lon] = llboxkm(vlat, vlon, d);
     subIND = find(EM.lat > sub_lat(1) & ...
                   EM.lat < sub_lat(2) & ...
                   EM.lon > sub_lon(1) & ...
-                  EM.lon < sub_lon(2));
+                  EM.lon < sub_lon(2) & ...
+                  ~isnan(EM.pfmed));
     subEM = substruct(EM,subIND,1);
     subPF = subEM.pfmed;
     subPF(subPF>max_pf) = max_pf;
@@ -30,7 +28,8 @@ for kk = 1:numel(volc_loc.name)
     %% AX1 - Contour Map View [Northing vs. Easting] (Top Left)
     ax1 = axes('Position',[.08 .66 .41 .28]);
     hold on
-    contour(x,y,flipud(dem),'k')
+    cmap = repmat(linspace(1,.5,70)',1,3);
+    [dem, x, y] = plot_dem(sub_lat,sub_lon,cmap);
     colorscat(subEM.lon, subEM.lat, 4.^(subEM.mag+.5), subPF, 'cbar', 0)
     grid on
     set(ax1,'XAxisLocation','top')
