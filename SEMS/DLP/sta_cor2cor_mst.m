@@ -16,7 +16,7 @@ for n = 1:numel(SD)
     id = SD(n).name;
     clc, disp(id), pause(.01)
     load(fullfile(Dir.Sta_Cor,id));
-    [ID,iW,iM] = intersect(get(W,'evid'),EM.evid);
+    [ID,iW,iM] = intersect(SC.evid,EM.evid);
     nM = numel(iM);
     nw = numel(W);
     lat = EM.lat(iM); 

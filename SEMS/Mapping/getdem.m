@@ -22,21 +22,7 @@ rowdone = 0;
 
 for n = flat
     for m = flon
-        if n >= 0
-            ff = ['n',num2str(n)];
-        else
-            ff = ['s',num2str(-n)];
-        end
-        if m < 0
-            ff = [ff,'w',num2str(-m)];
-        else
-            ff = [ff,'e',num2str(m)];
-        end
-        [F, sublat, sublon] = readgridfloat(dir,ff);
-        %sublat = sublat-1;
-        if isempty(F)
-            F = zeros(1812);
-        end
+        [F, sublat, sublon] = readgridfloat(dir,n,m);
         row = [row, F];
         if ~rowdone
             Mlon = [Mlon, sublon];
@@ -48,11 +34,11 @@ for n = flat
     row = [];
 end
 
-k = 10000;
-[Mlat, latindx] = unique(round(Mlat*k));
-[Mlon, lonindx] = unique(round(Mlon*k));
-Mlat = Mlat/k; Mlon = Mlon/k;
-M = M(latindx, lonindx);
+% k = 10000;
+% [Mlat, latindx] = unique(round(Mlat*k));
+% [Mlon, lonindx] = unique(round(Mlon*k));
+% Mlat = Mlat/k; Mlon = Mlon/k;
+% M = M(latindx, lonindx);
 M = flipud(M);
 M(Mlat < lat(1) | Mlat > lat(2),:) = [];
 M(:,Mlon < lon(1) | Mlon > lon(2)) = [];

@@ -1,7 +1,11 @@
-function fam_summary_plots_2(EM, F)
+function fam_summary_plots_2(EM, FM, cmap)
 
-for kk = 1:numel(F)
-    X = substruct(EM, F{kk}, 1);
+Dir = make_dir_mstr;
+
+for kk = 1:numel(FM)
+    fevid = FM(kk).evid{1};
+    [val iEM iFM] = intersect(EM.evid,fevid);
+    X = substruct(EM, iEM, 1);
     vn = X.volc{1};
     vlat = median(X.lat);
     vlon = median(X.lon);
@@ -24,18 +28,19 @@ for kk = 1:numel(F)
     subPF = subEM.pfmed;
     subPF(subPF>max_pf) = max_pf;
     subPF(subPF<min_pf) = min_pf;
-    dem = getdem(sub_lat, sub_lon);
-    x = linspace(sub_lon(1),sub_lon(2),size(dem,2));
-    y = linspace(sub_lat(1),sub_lat(2),size(dem,1));
     
     %% AX1 - Contour Map View [Northing vs. Easting] (Top Left)
     ax1 = axes('Position',[.08 .66 .41 .28]);
+    set(ax1,'Color',[.8 .8 1])
     hold on
-    contour(x,y,flipud(dem),'k')
+    try
+    [dem, x, y] = plot_dem(sub_lat,sub_lon,cmap);
+    catch
+    end
     scatter(subEM.lon, subEM.lat, 4.^(subEM.mag+.5),...
         'markerEdgeColor',[.7 .7 .7],'markerFaceColor',[1 1 1])
     scatter(X.lon, X.lat, 4.^(X.mag+.5),...
-        'markerEdgeColor',[0 0 0],'markerFaceColor',[0 1 0])
+        'markerEdgeColor',[0 0 0],'markerFaceColor',[1 0 0])
     grid on
     set(ax1,'XAxisLocation','top')
     xlim(sub_lon);
@@ -46,11 +51,14 @@ for kk = 1:numel(F)
     %% AX2 - Depth Profile View [Depth vs. Northing] (Top Right)
     ax2 = axes('Position',[.51 .66 .41 .28]);
     hold on
+    try
     plot(dem(:,ceil(size(dem,2)/2))/1000,y,'k')
+    catch
+    end
     scatter(-subEM.depth, subEM.lat, 4.^(subEM.mag+.5),...
         'markerEdgeColor',[.7 .7 .7],'markerFaceColor',[1 1 1])
     scatter(-X.depth, X.lat, 4.^(X.mag+.5),...
-        'markerEdgeColor',[0 0 0],'markerFaceColor',[0 1 0])
+        'markerEdgeColor',[0 0 0],'markerFaceColor',[1 0 0])
     grid on
     set(ax2,'XAxisLocation','top')
     xlim([-50 10])
@@ -64,11 +72,14 @@ for kk = 1:numel(F)
     %% AX3 - Depth Profile View [Depth vs. Easting] (Middle Left)
     ax3 = axes('Position',[.08 .36 .41 .28 ]);
     hold on
+    try
     plot(x,dem(ceil(size(dem,1)/2),:)/1000,'k')
+    catch
+    end
     scatter(subEM.lon, -subEM.depth, 4.^(subEM.mag+.5),...
         'markerEdgeColor',[.7 .7 .7],'markerFaceColor',[1 1 1])
     scatter(X.lon, -X.depth, 4.^(X.mag+.5),...
-        'markerEdgeColor',[0 0 0],'markerFaceColor',[0 1 0])
+        'markerEdgeColor',[0 0 0],'markerFaceColor',[1 0 0])
     grid on
     xlim(sub_lon);
     xlabel('Easting (Degrees)')
@@ -76,20 +87,20 @@ for kk = 1:numel(F)
     ylabel('Depth (km)')
     linkaxes([ax1, ax3],'x')
     
-    %% AX4.A - Depth vs. Frequency Histogram
-%     ax4 = axes('Position',[.56 .36 .36 .28]);
-%     wd = 'C:\AVO\DeepQuake\Waveform_Objects\';
-%     %for jj = 1%:numel(FAM.evid{kk})
-%     load([wd,num2str(FAM.evid{kk}(1)),'.mat'])
-%     %end
-%     plot_picks(W,'scale',.3,'ylab','sta:chan')
+    %% AX4 - Master Station Waveform
+    load([Dir.Fam_Wav,'\Family',sprintf('%03d',kk)])
+    ax4 = axes('Position',[.7 .36 .25 .28 ]);
+    plot_picks(FW{1},'scale',.5,'ylab','time')    
+    xlim([3, 18])
+    sta = get(FW{1}(1),'station');
 
     %% AX5 - [Depth vs. Time] (Lower Right)
     ax5 = axes('Position',[.08 .05 .84 .26]);
+    hold on
     scatter(subEM.datenum, -subEM.depth, 4.^(subEM.mag+.5),...
         'markerEdgeColor',[.7 .7 .7],'markerFaceColor',[1 1 1])
     scatter(X.datenum, -X.depth, 4.^(X.mag+.5),...
-        'markerEdgeColor',[0 0 0],'markerFaceColor',[0 1 0])
+        'markerEdgeColor',[0 0 0],'markerFaceColor',[1 0 0])
     grid on
     dynamicDateTicks
     xlabel('Time (years)')
@@ -98,7 +109,7 @@ for kk = 1:numel(F)
     
     %% AX6 - Title
     ax5 = axes('Position',[.38 .97 .45 .035],'Visible','off');
-    text(0,0,upper(vn),'FontSize',18)
+    text(0,0,upper([vn,' - ',sta]),'FontSize',16)
     
     %% Print the mother
     warning off

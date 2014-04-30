@@ -1,35 +1,18 @@
 
 %% Make AVO Network Maps
 
-kpi = 19;
+kpi = 20;
 
-for n = 4%:numel(M.volc)
+for n = 1%:numel(M.volc)
     
     lat = M.lat{n};
     lon = M.lon{n};
     dlat = lldistkm(lat(1),lon(1),lat(2),lon(1));
     dlon = lldistkm(lat(1),lon(1),lat(1),lon(2));
-    DEM = getdem(lat, lon);
-    DEM(DEM<=0) = 0;
-    y = linspace(lat(1),lat(2),size(DEM,1));
-    x = linspace(lon(1),lon(2),size(DEM,2));
-
-    DMax = max(max(DEM));
-    DMin = min(min(DEM));
-    clow = floor(DMin/50);
-    chigh = floor(DMax/50);
-    lines = (clow:chigh)*50+.1;
-    
     fh = figure;
     set(fh,'Position',[10,10,round(kpi*dlon),round(kpi*dlat)])
     set(fh,'Color',[1 1 1])
-    csub = (clow:chigh)+1;
-    colormap(cmap(csub,:))
-    ax = axes;
-    hold on
-    contourf(x,y,DEM,lines(1:end))
-    set(ax,'Color',[.6 .75 1])
-    grid on
+    plot_dem(lat,lon,cmap)
     s = substruct(S, S.lon>lon(1) & S.lon<lon(2) & S.lat>lat(1) & S.lat<lat(2), 1);
     scatter(s.lon, s.lat,'^','MarkerEdgeColor','k','MarkerFaceColor','r')
     for m = 1:numel(s.name)

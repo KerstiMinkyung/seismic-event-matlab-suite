@@ -10,6 +10,8 @@ Dir.Fig = [root,'\Figures'];
 Dir.Map = [root,'\Mapping'];
 Dir.Dem = 'C:\Gridfloat Maps';
 Dir.Sta_Cor = [root,'\Station_Correlations'];
+Dir.Sta_Clu = [root,'\Station_Correlation_Clusters'];
+Dir.Sta_Mst = [root,'\Master_Structures'];
 Dir.Fam_Wav = [root,'\Family_Waveforms'];
 Dir.Fam_Cor = [root,'\Family_Correlations'];
 

@@ -62,6 +62,8 @@ if (nargin > 1)
                 fill = val;
             case 'ylab' % Y-Tick Spacing
                 ylabtype = val;
+            case 'tit' % Title
+                tit = val;    
             otherwise
                 error('plotm2: Property name not recognized')
         end
@@ -165,7 +167,7 @@ switch tit
             depth = num2str(get(w(1),'ev_depth'));
             mag = num2str(get(w(1),'ev_mag'));
             pfmed = num2str(get(w(1),'pfmed'));
-            title(['EVENT ID: ',evid,',  DATE: ',start,...
+            text(['EVENT ID: ',evid,',  DATE: ',start,...
                 ',  DEPTH: ',depth,',  MAG: ',mag])
         catch
         end

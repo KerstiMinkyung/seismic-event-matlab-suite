@@ -18,6 +18,8 @@ addpath(genpath('C:\AVO\MatLAB Tools\fastsmooth'));
 addpath(genpath('C:\AVO\MatLAB Tools\nansuite'));
 addpath(genpath('C:\AVO\MatLAB Tools\miniSeed'));
 addpath(genpath('C:\AVO\MatLAB Tools\Yair_Altman'));
+addpath(genpath('C:\AVO\MatLAB Tools\distinguishable_colors'));
+addpath(genpath('C:\AVO\MatLAB Tools\linspecer'));
 
 javaaddpath({
    'C:\Winston1.1\lib\colt.jar', ...

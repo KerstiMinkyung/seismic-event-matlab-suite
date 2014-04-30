@@ -16,7 +16,7 @@ cd('C:\AVO\Deep LP\DLP_wfa')
 N = numel(EM.evid);
 S = [];
 for n = 1:N %numel(EM.evid)
-    load([num2str(EM.evid(n)),'.mat'])[]
+    load([num2str(EM.evid(n)),'.mat'])
     disp(num2str(n))
     W = W(isvertical(W));
     W = W(find(get_picks(W,'p')));
@@ -541,3 +541,23 @@ scatter(zeros(size(a)), a, 5*s,'k')
 set(gca,'xTickLabel',{})
 
 clear a ax1 ax2 ch depth fh lat lon mag max_pf min_pf n num pf s subEM tick ticklab
+
+%%
+Dir = make_dir_mstr;
+SD = dir(Dir.Sta_Cor);
+SD(1:2) = []; % Get rid of '.' and '..'
+
+for n = 1:5%numel(SD)
+    id = SD(n).name;
+    clc, disp(id), pause(.01)
+    load(fullfile(Dir.Sta_Cor,id));
+    SC.C = linkage(SC.C);
+    C = cluster(SC.C,0.75);
+    stat = getclusterstat(C);
+    W = get(C,'waveform');
+    for m = 1:numel(stat.index)
+        stat.evid{m} = get(W(stat.index{m}),'evid');
+    end
+    save([Dir.Sta_Clu,'\',id],'stat')
+    save([Dir.Sta_Cor,'\',id],'SC')
+end
