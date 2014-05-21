@@ -87,21 +87,21 @@ for t = 1:numel(time)
             channels = fieldnames(M.(SU).(ST));
             for k = 1:numel(channels)
                 CH = channels{k};
-                if ~rem(count,2)==0      % ODD
+%                 if ~rem(count,2)==0      % ODD
                     fprintf(fid2,'<h2>\n')
-                else                     % EVEN
-                    fprintf(fid2,'&nbsp;\n')
-                    fprintf(fid2,'&nbsp;\n')
-                end
+%                 else                     % EVEN
+%                     fprintf(fid2,'&nbsp;\n')
+%                     fprintf(fid2,'&nbsp;\n')
+%                 end
                 
                 fprintf(fid2,'<img src="channel_voltage_plots/%s_%s-%s.png"\n',ST,CH,T)
                 fprintf(fid2,'alt="%s:%s %s-long analog voltage plot"\n',ST,CH,T)
                 fprintf(fid2,'title="%s:%s %s-long analog voltage plot" align="middle">\n',ST,CH,T)
                 
-                if rem(count,2)==0       % EVEN
+%                 if rem(count,2)==0       % EVEN
                     fprintf(fid2,'<br>\n')
                     fprintf(fid2,'</h2>\n')
-                end    
+%                 end    
                 count = count+1;
             end
         end

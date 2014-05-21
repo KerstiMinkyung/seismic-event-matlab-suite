@@ -57,6 +57,6 @@ for n = 2:length(Skp) % Loop builds 'Skp_times'
 end
 %%%% Uncomment lines below to plot DC telemetry noise over signal
 %
-%skp_wave = Skp_NaN.*wave;
-%figure
-%plot(wave),hold on, plot(skp_wave,'color',[1 0 0])
+skp_wave = Skp_NaN.*wave;
+figure
+plot(wave),hold on, plot(skp_wave,'color',[1 0 0])

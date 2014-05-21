@@ -46,13 +46,28 @@ function data_source_popupmenu_Callback(hObject, eventdata, handles)
 function port_number_edit_Callback(hObject, eventdata, handles)
 
 function network_popupmenu_Callback(hObject, eventdata, handles)
+handles=guidata(gcf);
+netstr = get(hObject,'String');
+netval = get(hObject,'Value');
+net = netstr{netval};
+snl = list_subnets(net);
+set(handles.subnetwork_popupmenu,'String',snl);
+guidata(gcf, handles);
 
 function subnetwork_popupmenu_Callback(hObject, eventdata, handles)
 handles=guidata(gcf);
+netstr = get(handles.network_popupmenu,'String');
+netval = get(handles.network_popupmenu,'Value');
+net = netstr{netval};
 sns = get(hObject,'String');
 snv = get(hObject,'Value');
 subnet = sns{snv};
-scnl = AVsubnet2scnl(subnet);
+switch net
+    case{'AV'}
+        scnl = AVsubnet2scnl(subnet);
+    case{'MI'}
+        scnl = MIsubnet2scnl(subnet);
+end
 list = scnl2list(scnl);
 set(handles.station_channel_popupmenu,'String',list);
 guidata(gcf, handles);

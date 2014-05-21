@@ -1,4 +1,4 @@
-function M = update_mcvco(M,dir)
+function [M, W] = update_mcvco_struct(M,W,dr)
 
 host = 'pubavo1.wr.usgs.gov';
 port = 16023;
@@ -15,15 +15,16 @@ for n = 1:numel(subnets)
             CH = channels{k};
             X = M.(SU).(ST).(CH);
             scnl = scnlobject(ST,CH,'AV',[]);
-            X = update(X,ds,scnl);
+            [X,W] = update(X,W,ds,scnl);
             M.(SU).(ST).(CH) = X;
-            save([dir,'\Master.mat'],'M')
+            save([dr,'\Master.mat'],'M')
+            save([dr,'\WAVEFORMS\',ST,'_',CH,'.mat'],'W')
         end
     end
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function X = update(X,ds,scnl)
+function [X,W] = update(X,W,ds,scnl)
 
 if ~isempty(X.start)
 lastfind = max(X.start);
@@ -47,7 +48,8 @@ while t < now
     pause(.01)
     
     try
-        [start bvl id gain] = decode_mcvco(w,'start','bvl','id','gain');
+        [start, bvl, id, gain, off, amp, wave] = ...
+            decode_mcvco(w,'start','bvl','id','gain','off','amp','wave');
     catch
         start = NaN;
     end
@@ -58,6 +60,9 @@ while t < now
         X.bvl = [bvl; X.bvl];
         X.id = [id; X.id];
         X.gain = [gain; X.gain];
+        X.off = [off; X.off];
+        X.amp = [amp; X.amp];
+        W = [W, wave];
         disp([datestr(t), ' - ', get(scnl,'station'), ':',...
             get(scnl,'channel'),' - McVCO Signal Found'])
         t = start;
