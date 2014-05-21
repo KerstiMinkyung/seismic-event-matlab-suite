@@ -1,16 +1,21 @@
 function varargout = decode_mcvco(wave,varargin)
 
-%DECODE_MCVCO: Locates and decodes test cycle from a short period seismic
-%           station hooked up to a McVCO. 
+%DECODE_MCVCO: Locates and decodes test cycle produced by a McVCO
+%
+%MCVCO TEST CYCLE SUMMARY: Total test cycle duration is fixed at 53.25
+%  seconds consisting of 3 consecutive pieces:
+%  [1] High Amplitude 21.25 Hz tone (duration: 10.25 seconds)
+%  [2] Series of 8 Mass drops (duration: 18 seconds)
+%  [3] Binary train of 25 bits (duration: 25 seconds)
 %
 %USAGE:
-%sst = decode_mcvco(wave,'sst')     --> Start/Stop Times of test cycle
-%data = decode_mcvco(wave,'data')   --> Binary String
-%resp = decode_mcvco(wave,'resp')   --> Instrument Response, this returns
-%                                       the trimmed waveform between the 
-%                                       tone and the binary data
-%bvl = decode_mcvco(wave,'bvl')     --> Battery Voltage Level
-%[sst resp bvl] = decode_mcvco(wave,'sst','resp','bvl') --> Any combination
+% sst = decode_mcvco(wave,'sst')     --> Start/Stop Times of test cycle
+% data = decode_mcvco(wave,'data')   --> Binary String
+% resp = decode_mcvco(wave,'resp')   --> Instrument Response, this returns
+%                                        the trimmed waveform between the 
+%                                        tone and the binary data
+% bvl = decode_mcvco(wave,'bvl')     --> Battery Voltage Level
+% [sst resp bvl] = decode_mcvco(wave,'sst','resp','bvl') --> Any combo
 %
 %INPUTS: wave    - a waveform object with a calibration pulse
 %        command - user defined: 'sst', 'data', 'resp', or 'bvl'
@@ -39,17 +44,20 @@ edge_found = 0;         % Has right edge of tone been found?
 n = 1;                  % Ref to left edge of window
 
 %% LOOK FOR RIGHT EDGE OF 21.25 Hz Tone
-while (edge_found==0) && ((n+43*Fs) < v_l)
+while (edge_found==0) && ((n+(18+25)*Fs) < v_l)
    chk_v = v(n:n+chk_dur-1);   % Window to check for tone
+   chk_v = chk_v - nanmean(chk_v);
    s = gmax(chk_v,tone_freq);
    if (s < 10000) && (tone_found == 0)
       n = n+chk_per;
    elseif (s > 10000) && (tone_found == 0)
       tone_found = 1;
       max_s = s;
+      off = nanmean(chk_v);
    elseif (tone_found == 1) && (edge_found == 0)
       if s > max_s
          max_s = s;
+         off = nanmean(chk_v);
          n = n + 1;
       elseif s < max_s*(.75)
          edge_found = 1;
@@ -67,33 +75,33 @@ end
 %  BACK EDGE OF THE 10.25 SECOND TONE
 
 if edge_found
-   flag = 0;
-   m = n-10.25*Fs;
-   while flag == 0
-      chk_left = v(m:m+chk_dur-1);
-      sl = gmax(chk_left,tone_freq);
-      chk_right = v(n:n+chk_dur-1);
-      sr = gmax(chk_right,tone_freq);
-      if sl>sr
-         flag = 1;
-         tone_edge(1) = floor(m+chk_dur/2);
-         tone_edge(2) = floor(n+chk_dur/2);
-         k = tone_edge(2) + 18.75*Fs;
-         mv = mean(v(k-2*Fs : k-1*Fs));
-         for K = 1:25
-            bin_data(K) = v(k)>mv;
-            bin_ref(K) = k;
-            k = k + Fs;
-         end
-      else
-         m = m+1;
-         n = n+1;
-      end
-   end
+    flag = 0;
+    m = n-10.25*Fs;
+    while flag == 0
+        chk_left = v(m:m+chk_dur-1);
+        sl = gmax(chk_left,tone_freq);
+        chk_right = v(n:n+chk_dur-1);
+        sr = gmax(chk_right,tone_freq);
+        if sl>sr
+            flag = 1;
+            t1 = floor(m+chk_dur/2); % Tone Edge 1
+            t2 = floor(n+chk_dur/2); % Tone Edge 2
+            pre = nanmean(v(t1-2*Fs:t1-Fs));
+            k = t2 + 18.75*Fs;
+            for K = 1:25
+                bin_data(K) = v(k)>off;
+                bin_ref(K) = k;
+                k = k + Fs;
+            end
+        else
+            m = m+1;
+            n = n+1;
+        end
+    end
 end
 else % No Waveform
-   edge_found = 0;
-   bin_data = [];
+    edge_found = 0;
+    bin_data = [];
 end
 
 %%
@@ -104,16 +112,17 @@ else
 end
 
 %% USER-DEFINED OUTPUTS
+d2s = 1/24/60/60;
 for n = 1:numel(varargin)
     if complete
         switch(lower(varargin{n}))
-            case{'start'}
-                varargout{n} = tv(tone_edge(1)-10);
+            case{'start','begin'}
+                varargout{n} = tv(t1);
                 
-            case{'sst'}
-                varargout{n} = [tv(tone_edge(1)-10), tv(k+.25*Fs+10)];
+            case{'sst','startstoptimes'}
+                varargout{n} = [tv(t1), tv(t1)+53.25*d2s];
                 
-            case{'data'}
+            case{'data','dat'}
                 varargout{n} = {bin_data};
                 
             case{'gain'}
@@ -138,22 +147,27 @@ for n = 1:numel(varargin)
                 
             case{'id'}
                 varargout{n} = bin2dec(num2str(bin_data(4:13)));
+            
+            case{'waveform','wave'}
+                varargout{n} = extract(wave,'INDEX',t1-2*Fs,t1+55.25*Fs);
                 
-            case{'resp'}
-                varargout{n} = extract(wave,'INDEX',tone_edge(2),...
-                    tone_edge(2)+18*Fs);
+            case{'massdrops','resp','response'}
+                varargout{n} = extract(wave,'INDEX',t2,t2+18*Fs);
                 
-            case{'bvl'}
+            case{'offset','off'}
+                varargout{n} = off-pre;    
+                
+            case{'bvl','voltage','voltages','batteryvoltage'}
                 varargout{n} = bin2dec(num2str(bin_data(14:25)))/79;
                 
-            case{'amp'}
+            case{'amp','amplitude'}
                 varargout{n} = max_s;
                 
             case{'plot'}
                 fh = figure;
-                plot(extract(wave,'INDEX',tone_edge(1)-Fs,k+.25*Fs+Fs))
+                plot(extract(wave,'INDEX',t1-Fs,k+.25*Fs+Fs))
                 hold on
-                scatter((bin_ref-tone_edge(1)+Fs)/Fs,v(bin_ref),'*','r')  
+                scatter((bin_ref-t1+Fs)/Fs,v(bin_ref),'*','r')  
                 varargout{n} = fh;
         end
     else

@@ -22,7 +22,7 @@ end
 function sems_main_OpeningFcn(hObject, eventdata, handles, varargin)
 
 setappdata(0,'config',[])
-setappdata(0,'log',[])
+setappdata(0,'plog',[])
 setappdata(0,'sems_main_fig',hObject)
 
 %% CHANGE ICON TO SEMS ICON
@@ -88,18 +88,31 @@ handles.log.eventcount = nan(h,w);
 handles.log.cur_day = 1;
 handles.log.cur_scnl = 1;
 handles.log.blockcnt = zeros(1,w);
-log = handles.log;
-[pathstr, name, ext] = fileparts(handles.config.log_path);
-cd(pathstr)
-save(name,'log')
+prjlog = handles.log;
+save([handles.config.log_path,'.mat'],'prjlog')
+for n = 1:numel(ch)
+    try
+        set(ch{n},'Enable', 'active')
+    catch
+    end
+end
 guidata(gcf, handles);
 
-function load_proj_mnu_Callback(hObject, eventdata, handles)
+function load_proj_config_mnu_Callback(hObject, eventdata, handles)
+handles = guidata(gcf);
+[FileName,PathName] = uigetfile('*.mat','Select Project Config File');
+load([PathName,FileName])
+handles.config = config;
+load([handles.config.log_path,'.mat'])
+handles.log = prjlog;
+set(handles.config_edt,'String',handles.config.config_path);
+set(handles.log_edt,'String',handles.config.log_path);
+guidata(gcf, handles);
 
 function run_but_Callback(hObject, eventdata, handles)
 handles = guidata(gcf);
 clc
-[config log] = sems_program(handles.config,handles.log);
+[config prjlog] = sems_program(handles.config,handles.log);
 guidata(gcf, handles);
 
 function stop_but_Callback(hObject, eventdata, handles)
@@ -113,3 +126,9 @@ function log_edt_Callback(hObject, eventdata, handles)
 function log_edt_CreateFcn(hObject, eventdata, handles)
 
 
+
+% --------------------------------------------------------------------
+
+% hObject    handle to load_proj_log_mnu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
