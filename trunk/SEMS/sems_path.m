@@ -11,7 +11,9 @@ function sems_path
 % $Revision$
 
 addpath(genpath('C:\AVO\SEMS_SVN\SEMS'));
-addpath(genpath('C:\AVO\GISMO_SVN\GISMO'));
+addpath(genpath('C:\AVO\SEMS_SVN\SEMS'));
+addpath(genpath('C:\AVO\GISMO'));
+addpath(genpath('C:\AVO\SEMS'));
 addpath('C:\AVO\DeepQuake');
 addpath(genpath('C:\AVO\MatLAB Tools\dynamicDateTicks'));
 addpath(genpath('C:\AVO\MatLAB Tools\fastsmooth'));
@@ -22,9 +24,13 @@ addpath(genpath('C:\AVO\MatLAB Tools\distinguishable_colors'));
 addpath(genpath('C:\AVO\MatLAB Tools\linspecer'));
 
 javaaddpath({
-   'C:\Winston1.1\lib\colt.jar', ...
-   'C:\Winston1.1\lib\mysql.jar', ...
-   'C:\Winston1.1\lib\winston-bin.jar'});
+    'C:\Winston1.1\lib\colt.jar', ...
+    'C:\Winston1.1\lib\mysql.jar', ...
+    'C:\Winston1.1\lib\winston-bin.jar'});
 
 format compact
-cd('C:\AVO\SEMS_SVN\SEMS')
+try
+    cd('C:\AVO\SEMS_SVN\SEMS')
+catch
+    cd('C:\AVO\SEMS')
+end
