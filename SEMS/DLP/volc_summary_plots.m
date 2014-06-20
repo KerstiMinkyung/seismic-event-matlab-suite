@@ -69,38 +69,30 @@ for kk = 1:numel(volc_loc.name)
     ax4a = axes('Position',[.54 .36 .33 .12]);
     x1 = min(subEM.depth);
     x2 = max(subEM.depth);
-    Nx = 30;
-    dx = (x2-x1)/Nx;
-    colorhist(subEM.depth,subPF,Nx,64)
-    tick = x1+dx:2*dx:x2;
-    for n = 1:numel(tick), ticklb{n} = sprintf('%0.0f',tick(n)); end
-    set(ax4a,'XTick',tick);
-    set(ax4a,'XTickLab',ticklb);
+    colorhist(subEM.depth,subEM.pfmed,'xbins',15:1:45,'cbins',0:.25:10)
     xlabel('Depth (km)')
-    xlim([x1, x2])
+    dx = x2-x1;
+    xlim([x1-dx/25, x2+dx/25])
     grid on
     
     %% AX4.B - Magnitude vs. Frequency Histogram 
     ax4b = axes('Position',[.54 .52 .33 .12]);
     x1 = min(subEM.mag);
     x2 = max(subEM.mag);
-    dx = (x2-x1)/Nx;
-    colorhist(subEM.mag,subPF,Nx,64)
-    tick = x1+dx:4*dx:x2;
-    for n = 1:numel(tick), ticklb{n} = sprintf('%0.1f',tick(n)); end
-    set(ax4b,'XTick',tick);
-    set(ax4b,'XTickLab',ticklb);
+    colorhist(subEM.mag,subEM.pfmed,'xbins',x1:.1:x2,'cbins',0:.25:10)
     xlabel('Magnitude')
-    xlim([x1, x2])
+    dx = x2-x1;
+    xlim([x1-dx/25, x2+dx/25])
     grid on
     
     %% AX4.C - Magnitude Marker Scale
     ax4c = axes('Position',[.54 .65 .33 .035]);
+    tick = -1:.5:4;
     scatter(tick,zeros(size(tick)),4.^(tick+.5),...
         'markerEdgeColor','k','markerFaceColor','k')
     set(ax4c,'Visible','off')
     ylim([0, 1])
-    xlim([x1, x2])
+    xlim(get(ax4b,'xlim'))
     
     %% Color Bar
     ch = colorbar;

@@ -69,9 +69,10 @@ scatter3(volc_loc.lon,volc_loc.lat,zeros(37,1),...
 for n = 1:37
     plot3([1,1]*volc_loc.lon(n),[1,1]*volc_loc.lat(n),[0,-15],'r')
 end
-X = EM.pfmed;
+XX = substruct(EM,EM.mag<=3.5,1);
+X = XX.pfmed;
 X(X>10) = 10;
-colorscat3(EM.lon, EM.lat, -EM.depth, 4.^(EM.mag+.5), X)
+colorscat3(XX.lon, XX.lat, -XX.depth, 4.^(XX.mag+.5), X)
 xlim([-185 -150])
 ylim([50 63])
 zlim([-50 10])
@@ -541,23 +542,3 @@ scatter(zeros(size(a)), a, 5*s,'k')
 set(gca,'xTickLabel',{})
 
 clear a ax1 ax2 ch depth fh lat lon mag max_pf min_pf n num pf s subEM tick ticklab
-
-%%
-Dir = make_dir_mstr;
-SD = dir(Dir.Sta_Cor);
-SD(1:2) = []; % Get rid of '.' and '..'
-
-for n = 1:5%numel(SD)
-    id = SD(n).name;
-    clc, disp(id), pause(.01)
-    load(fullfile(Dir.Sta_Cor,id));
-    SC.C = linkage(SC.C);
-    C = cluster(SC.C,0.75);
-    stat = getclusterstat(C);
-    W = get(C,'waveform');
-    for m = 1:numel(stat.index)
-        stat.evid{m} = get(W(stat.index{m}),'evid');
-    end
-    save([Dir.Sta_Clu,'\',id],'stat')
-    save([Dir.Sta_Cor,'\',id],'SC')
-end

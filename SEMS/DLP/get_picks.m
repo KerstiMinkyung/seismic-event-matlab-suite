@@ -7,10 +7,10 @@ if ~isa(W,'waveform')
     error('GET_PICKS: First input must be a waveform object')
 end
 
-if (nargin-1) ~= nargout
-    error(['GET_PICKS: Number of picks specified by inputs must match ',...
-                       'the number of outputs'])
-end
+% if (nargin-1) ~= nargout
+%     error(['GET_PICKS: Number of picks specified by inputs must match ',...
+%                        'the number of outputs'])
+% end
 
 for n = 1:nargin-1
     if strcmpi(varargin{n},'p')
