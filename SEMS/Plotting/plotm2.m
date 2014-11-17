@@ -3,8 +3,10 @@ function plotm2(w,varargin)
 %PLOTM2: Plot Multiple Waveforms
 
 %%
+if ~isa(w,'waveform') || isempty(w)
+    return
+end
 w = demean(w);
-%mscale = where I left off
 w = w./mean(abs(w)); % scale waveforms
 
 if isempty(findobj('type','figure'))
@@ -21,7 +23,7 @@ end
 nw = numel(w);
 sp = 5;          % trace spacing
 fill = 0;        % don't area fill bottom half of waveform
-xl = max(get(w,'data_length')./get(w,'freq'));
+xl = nanmax(get(w,'data_length')./get(w,'freq'));
 ylabtype = 'time';
 
 %%
@@ -38,7 +40,7 @@ if (nargin > 1)
       switch name
          case 'scale' % Event Start/Stop Times
             if isnumeric(val) && numel(val)==1
-               sp = sp/val; % Where I left off...
+               sp = sp/val;
             end
             
          case 'fill' % Trace Fill
@@ -64,8 +66,8 @@ for n = 1:nw
       off = min(dat);
       area((tv-start)*d2s,dat+cl(n),-nw*sp*2,'FaceColor',[1 1 1])
    else
-      plot((tv-start)*d2s,dat+cl(n),'Color',[0 0 0])
-      if n==1, hold on, end
+       plot((tv-start)*d2s,dat+cl(n),'Color',[0 0 0])
+       if n==1, hold on, end
    end
    ypos(n)=cl(n);
    if ~isempty(w(n))
@@ -78,6 +80,11 @@ for n = 1:nw
                    'sta-chan','sta:chan','sta/chan','stachan'}
                ylab{n}=[get(w(n),'station'),':',get(w(n),'channel')];
                if n==1, title(datestr(start)), end
+           case {'station-channel-date','station:channel:date',...
+                   'station/channel/date','sta-chan-date','sta:chan:date',...
+                   'sta/chan/date','stachandate'}
+               ylab{n}=[get(w(n),'station'),':',get(w(n),'channel'),...
+                        ' - ',datestr(get(w(n),'start'))];
        end
    else
        ylab{n}=[];

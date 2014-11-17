@@ -1,4 +1,4 @@
-function [M, W] = reset_mcvco_chan(M,SU,ST,CH,id,gain)
+function [M, W] = reset_mcvco_chan(M,SU,ST,CH,id,gain,lastcheck)
 
 host = 'pubavo1.wr.usgs.gov';
 port = 16023;
@@ -14,7 +14,7 @@ X.off = [];
 X.amp = [];
 X.real_id = id;
 X.real_gain = gain;
-X.lastcheck = datenum([2012 8 1 0 0 0]);
+X.lastcheck = lastcheck;
 scnl = scnlobject(ST,CH,'AV',[]);
 [X, W] = update(X,W,ds,scnl);
 M.(SU).(ST).(CH) = X;
@@ -25,7 +25,7 @@ function [X,W] = update(X,W,ds,scnl)
 if ~isempty(X.start)
 lastfind = max(X.start);
 else
-    lastfind = datestr([2000 1 1 0 0 0]);
+    lastfind = datenum([2000 1 1 0 0 0]);
 end
 gapcnt = X.lastcheck - lastfind;
 if gapcnt < 7
@@ -73,8 +73,8 @@ while t < now
         gapcnt = gapcnt + .5;
     elseif gapcnt >= 7
         X.lastcheck = t;
-        t = t + 2;
-        gapcnt = gapcnt + 2;
+        t = t + .5;
+        gapcnt = gapcnt + .5;
     end
 end
 [A B] = sort(X.start,'descend');

@@ -87,7 +87,7 @@ if edge_found
             t1 = floor(m+chk_dur/2); % Tone Edge 1
             t2 = floor(n+chk_dur/2); % Tone Edge 2
             pre = nanmean(v(t1-2*Fs:t1-Fs));
-            k = t2 + 18.75*Fs;
+            k = floor(t2 + 18.75*Fs);
             for K = 1:25
                 bin_data(K) = v(k)>off;
                 bin_ref(K) = k;
@@ -161,7 +161,8 @@ for n = 1:numel(varargin)
                 varargout{n} = bin2dec(num2str(bin_data(14:25)))/79;
                 
             case{'amp','amplitude'}
-                varargout{n} = max_s;
+                tone = extract(wave,'INDEX',t1+1*Fs,t1+9*Fs);
+                varargout{n} = max(abs(demean(tone)));
                 
             case{'plot'}
                 fh = figure;
