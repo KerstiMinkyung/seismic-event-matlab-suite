@@ -10,7 +10,8 @@ for n = 1:numel(subnets)
     stations = fieldnames(D.(SU));
     for m = 1:numel(stations)
         ST = stations{m};
-        dat = [dat, D.(SU).(ST).BHZ];
+        X = D.(SU).(ST).BHZ;
+        dat = [dat, X.percent];
         names{end + 1} = [SU,':',ST];
     end
 end
@@ -23,3 +24,17 @@ dynamicDateTicks
 grid on
 set(gca,'YTick',1:length(names))
 set(gca,'YTickLabel',names(end:-1:1))
+
+%%
+
+D = M.Outage;
+subnets = fieldnames(D);
+
+for n = 1:numel(subnets)
+    SU = subnets{n};
+    stations = fieldnames(D.(SU));
+    for m = 1:numel(stations)
+        ST = stations{m};
+        D.(SU).(ST).BHZ.percent = D.(SU).(ST).BHZ.percent(337:end);
+    end
+end
