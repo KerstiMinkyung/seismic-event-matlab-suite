@@ -1,4 +1,4 @@
-function M = update_outage_struct(M)
+function M = update_outage_struct(M,dr)
 
 %% Source
 host = 'pubavo1.wr.usgs.gov';
@@ -38,13 +38,13 @@ for n = 1:numel(subnets)
                 end
             end
             M.Outage.(SU).(ST).(CH) = X;
-            save('C:\AVO\Station_Outage\Master.mat','M')
         end
     end
+    save([dr,'\Master.mat'],'M')
 end
 
 
-%% Script structure for looping through structure
+%% Script for looping through all channels in structure M
 % subnets = fieldnames(M.Outage);
 % for n = 1:numel(subnets)
 %     SU = subnets{n};
@@ -54,7 +54,9 @@ end
 %         channels = fieldnames(M.Outage.(SU).(ST));
 %         for k = 1:numel(channels)
 %             CH = channels{k};
-%             M.Outage.(SU).(ST).(CH) = M.Outage.(SU).(ST).(CH).percent;
+%             
+%             YOUR CODE HERE
+%
 %         end
 %     end
 % end
