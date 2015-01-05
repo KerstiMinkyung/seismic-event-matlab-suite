@@ -78,6 +78,8 @@ R = round(R);
 R(R==0)=1;
 C = flipud(jet(nbins));
 %C = jet(nbins);
+cut = find(isnan(R));
+R(cut) = []; X(cut) = []; Y(cut) = []; S(cut) = [];
 cdata = C(R,:);
 scatter(X,Y,S,cdata,'fill')
 

@@ -59,7 +59,7 @@ while t < now
     
     try
         [start, bvl, id, gain, off, amp, wave] = ...
-            decode_mcvco(w,'start','bvl','id','gain','off','amp','wave');
+            decode_mcvco(w,'start','bvl','id','gain','off','ramp','wave');
     catch
         start = NaN;
     end

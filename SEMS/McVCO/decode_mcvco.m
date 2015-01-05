@@ -122,7 +122,7 @@ for n = 1:numel(varargin)
             case{'sst','startstoptimes'}
                 varargout{n} = [tv(t1), tv(t1)+53.25*d2s];
                 
-            case{'data','dat'}
+            case{'dat','data'}
                 varargout{n} = {bin_data};
                 
             case{'gain'}
@@ -148,21 +148,26 @@ for n = 1:numel(varargin)
             case{'id'}
                 varargout{n} = bin2dec(num2str(bin_data(4:13)));
             
-            case{'waveform','wave'}
+            case{'wav','wave','waveform'}
                 varargout{n} = extract(wave,'INDEX',t1-2*Fs,t1+55.25*Fs);
                 
-            case{'massdrops','resp','response'}
+            case{'mdrp','massdrops','rspw','response_waveform'}
                 varargout{n} = extract(wave,'INDEX',t2,t2+18*Fs);
                 
-            case{'offset','off'}
+            case{'off','offset','offset_amplitude'}
                 varargout{n} = off-pre;    
                 
-            case{'bvl','voltage','voltages','batteryvoltage'}
+            case{'bvl','voltage','voltages','battery_voltage'}
                 varargout{n} = bin2dec(num2str(bin_data(14:25)))/79;
                 
-            case{'amp','amplitude'}
+            case{'tamp','toneamp','tone_amplitude'}
                 tone = extract(wave,'INDEX',t1+1*Fs,t1+9*Fs);
-                varargout{n} = max(abs(demean(tone)));
+                varargout{n} = (max(tone)-min(tone))/2;    
+                
+            case{'ramp','respamp','response_amplitude'}
+                pre = median(extract(wave,'INDEX',t2,t2+Fs));
+                resp = extract(wave,'INDEX',t2+.75*Fs,t2+2.25*Fs);
+                varargout{n} = max(resp)-pre;
                 
             case{'plot'}
                 fh = figure;
