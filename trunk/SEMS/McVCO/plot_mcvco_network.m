@@ -47,7 +47,7 @@ for m = 1:numel(stations)
                 case {'o','off','offset','offsets','dc'}
                     colorscat(t,t*0-C,t*0+200,b,'range',[-4000, 4000],'cbar',0)
                 case {'a','amp','amplitude','amplitudes'}
-                    colorscat(t,t*0-C,t*0+200,b,'range',[0, 8000],'cbar',0)
+                    colorscat(t,t*0-C,t*0+200,b,'range',[0, 10000],'cbar',0)
             end
         catch
         end
@@ -67,7 +67,7 @@ switch lower(type)
         set(gca,'YTickLabel',stalab(end:-1:1))
         xAxH = 30;
         figH = (C+1)*25 + xAxH;
-        set(gcf,'Position',[1 1 1200 figH])
+        set(gcf,'Position',[50 50 1200 figH])
         set(gca,'Position',[0.075 xAxH/figH 0.9 (figH-xAxH-5)/figH])
         setxticks(tag)
         xlim(t_rng)

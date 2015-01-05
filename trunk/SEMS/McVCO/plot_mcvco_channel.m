@@ -51,7 +51,7 @@ for m = 1:numel(stations)
             case 'Voltages'
                 ylim([9 16])
             case 'Amplitudes'
-                ylim([0 8000])
+                ylim([0 10000])
             case 'Offsets'
                 ylim([-4000 4000])
             case 'Waveforms'

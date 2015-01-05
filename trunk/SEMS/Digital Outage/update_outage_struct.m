@@ -34,7 +34,8 @@ for n = 1:numel(subnets)
                     w = zero2nan(w,5);
                     d = get(w,'data');
                     X(kk) = single((numel(d)-sum(isnan(d)))/(60*60*f));
-                    fprintf([SU,' - ',ST,':',CH,' - ',datestr(M.TimeVector(kk)),'\n'])
+                    fprintf([SU,' - ',ST,':',CH,' - ',datestr(M.TimeVector(kk)),...
+                ' - ',num2str(X(kk)*100),' %%\n'])
                 end
             end
             M.Outage.(SU).(ST).(CH) = X;
